@@ -1,4 +1,4 @@
-package com.projectbarbel.histo.persistence.mongo.impl;
+package com.projectbarbel.histo.persistence.mongo;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -11,7 +11,6 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.Filters;
-import com.projectbarbel.histo.persistence.mongo.DocumentDao;
 
 public class MongoDocumentDaoImpl implements DocumentDao<DefaultMongoValueObject, ObjectId> {
 

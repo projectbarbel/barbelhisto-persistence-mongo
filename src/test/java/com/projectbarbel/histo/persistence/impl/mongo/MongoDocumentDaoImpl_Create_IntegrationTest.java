@@ -9,23 +9,27 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.mongodb.MongoWriteException;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.projectbarbel.histo.persistence.mongo.DefaultMongoValueObject;
 import com.projectbarbel.histo.persistence.mongo.DocumentDao;
-import com.projectbarbel.histo.persistence.mongo.impl.DefaultMongoValueObject;
-import com.projectbarbel.histo.persistence.mongo.impl.MongoDocumentDaoImpl;
+import com.projectbarbel.histo.persistence.mongo.MongoDocumentDaoImpl;
 import com.projectbarbel.histo.persistence.util.BarbelTestHelper;
 
 public class MongoDocumentDaoImpl_Create_IntegrationTest {
 
+    private static FlapDoodleEmbeddedMongo _mongo = FlapDoodleEmbeddedMongo.instance();
+    private static MongoClient client = _mongo.client();
+    
     private static DocumentDao<DefaultMongoValueObject, ObjectId> dao;
     private MongoCollection<DefaultMongoValueObject> col;
 
     @BeforeClass
-    public static void beforeClass() {
-        dao = new MongoDocumentDaoImpl(FlapDoodleEmbeddedMongoClientDaoSupplier.MONGOCLIENT.getMongo(), "test", "testCol");
+    public static void setUpSuite() {
+        dao = new MongoDocumentDaoImpl(client, "test", "testCol");
     }
-
+    
     @Before
     public void setUp() {
         dao.reset();

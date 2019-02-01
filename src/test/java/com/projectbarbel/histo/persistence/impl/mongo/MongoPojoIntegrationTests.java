@@ -10,19 +10,20 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.Filters;
-import com.projectbarbel.histo.persistence.mongo.impl.DefaultMongoValueObject;
+import com.projectbarbel.histo.persistence.mongo.DefaultMongoValueObject;
 import com.projectbarbel.histo.persistence.util.BarbelTestHelper;
 
 public class MongoPojoIntegrationTests {
 
-	private final static MongoClient _mongo = FlapDoodleEmbeddedMongoClientDaoSupplier.MONGOCLIENT.getMongo();
+    private static FlapDoodleEmbeddedMongo _mongo = FlapDoodleEmbeddedMongo.instance();
+    private static MongoClient client = _mongo.client();
 	private MongoCollection<DefaultMongoValueObject> col;
 
 	@Before
 	public void setUp() {
-		_mongo.getDatabase("test").drop();
-		_mongo.getDatabase("test").createCollection("testCol", new CreateCollectionOptions().capped(false));
-		col = _mongo.getDatabase("test").getCollection("testCol", DefaultMongoValueObject.class);
+	    client.getDatabase("test").drop();
+	    client.getDatabase("test").createCollection("testCol", new CreateCollectionOptions().capped(false));
+		col = client.getDatabase("test").getCollection("testCol", DefaultMongoValueObject.class);
 //		_mongo.getDatabase("test").createCollection("testCol", new CreateCollectionOptions().capped(false));
 	}
 

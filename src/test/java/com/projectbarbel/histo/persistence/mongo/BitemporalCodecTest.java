@@ -1,4 +1,4 @@
-package com.projectbarbel.histo.persistence.mongo.impl;
+package com.projectbarbel.histo.persistence.mongo;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;

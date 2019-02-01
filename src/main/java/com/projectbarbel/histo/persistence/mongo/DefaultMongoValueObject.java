@@ -1,11 +1,12 @@
-package com.projectbarbel.histo.persistence.mongo.impl;
+package com.projectbarbel.histo.persistence.mongo;
 
 import java.util.Objects;
+
+import javax.annotation.Generated;
 
 import org.bson.types.ObjectId;
 
 import com.projectbarbel.histo.persistence.api.BitemporalStamp;
-import javax.annotation.Generated;
 
 public class DefaultMongoValueObject {
 

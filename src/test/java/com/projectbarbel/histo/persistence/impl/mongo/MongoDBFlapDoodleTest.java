@@ -8,6 +8,7 @@ import org.bson.types.ObjectId;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.CreateCollectionOptions;
@@ -16,16 +17,17 @@ import com.mongodb.client.model.Updates;
 
 public class MongoDBFlapDoodleTest {
 
-	private FlapDoodleEmbeddedMongoClientDaoSupplier _mongo = FlapDoodleEmbeddedMongoClientDaoSupplier.MONGOCLIENT;
+    private static FlapDoodleEmbeddedMongo _mongo = FlapDoodleEmbeddedMongo.instance();
+	private static MongoClient client = _mongo.client();
 	
 	@Before
 	public void setUp() {
-		_mongo.getMongo().getDatabase("test").drop();
-	}
+	    client.getDatabase("test").drop();
+	}	
 	
 	@Test
 	public void testCreateDocument() {
-		MongoDatabase db = _mongo.getMongo().getDatabase("test");
+		MongoDatabase db = client.getDatabase("test");
 		db.createCollection("testCol", new CreateCollectionOptions().capped(false));
 		MongoCollection<Document> col = db.getCollection("testCol");
 		Document document = new Document("name", "Café Con Leche");
@@ -37,7 +39,7 @@ public class MongoDBFlapDoodleTest {
 
 	@Test
 	public void testReadDocument() {
-		MongoDatabase db = _mongo.getMongo().getDatabase("test");
+		MongoDatabase db = client.getDatabase("test");
 		db.createCollection("testCol", new CreateCollectionOptions().capped(false));
 		MongoCollection<Document> col = db.getCollection("testCol");
 		Document document = new Document("name", "BlockTest");
@@ -48,7 +50,7 @@ public class MongoDBFlapDoodleTest {
 
 	@Test
 	public void testUpdateDocument() {
-		MongoDatabase db = _mongo.getMongo().getDatabase("test");
+		MongoDatabase db = client.getDatabase("test");
 		db.createCollection("testCol", new CreateCollectionOptions().capped(false));
 		MongoCollection<Document> col = db.getCollection("testCol");
 		Document document = new Document("name", "BlockTest");
@@ -62,7 +64,7 @@ public class MongoDBFlapDoodleTest {
 
 	@Test
 	public void testDeleteDocument() {
-		MongoDatabase db = _mongo.getMongo().getDatabase("test");
+		MongoDatabase db = client.getDatabase("test");
 		db.createCollection("testCol", new CreateCollectionOptions().capped(false));
 		MongoCollection<Document> col = db.getCollection("testCol");
 		Document document = new Document("name", "BlockTest");

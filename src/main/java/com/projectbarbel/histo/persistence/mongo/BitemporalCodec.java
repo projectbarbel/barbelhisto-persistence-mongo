@@ -1,4 +1,4 @@
-package com.projectbarbel.histo.persistence.mongo.impl;
+package com.projectbarbel.histo.persistence.mongo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
