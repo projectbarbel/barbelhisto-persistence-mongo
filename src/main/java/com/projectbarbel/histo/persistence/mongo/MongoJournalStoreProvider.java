@@ -3,9 +3,12 @@ package com.projectbarbel.histo.persistence.mongo;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.bson.codecs.configuration.CodecRegistries;
@@ -67,15 +70,18 @@ public class MongoJournalStoreProvider<T> implements JournalStoreProvider<T> {
     }
 
     protected static Properties properties(String configFileName) {
-        String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-        String appConfigPath = rootPath + configFileName;
+        
         Properties appProps = new Properties();
         try {
-            appProps.load(new FileInputStream(appConfigPath));
+            Path path = Paths.get(MongoJournalStoreProvider.class.getClassLoader()
+                    .getResource(DFLTCONFIGFILE).toURI());
+            appProps.load(Files.newBufferedReader(path));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("the config file name could not be found: " + configFileName, e);
         } catch (IOException e) {
             throw new IllegalArgumentException("config file i/o failed for config file: " + configFileName, e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("could not generate URI, worn syntax for config file: " + configFileName, e);
         }
         return appProps;
     }

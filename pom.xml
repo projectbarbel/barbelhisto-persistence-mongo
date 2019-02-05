@@ -19,6 +19,19 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>nschlimm-projectbarbel</id>
+			<url>https://packagecloud.io/nschlimm/projectbarbel/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.mongodb</groupId>

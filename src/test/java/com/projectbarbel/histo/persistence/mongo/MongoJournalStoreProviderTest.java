@@ -24,9 +24,9 @@ public class MongoJournalStoreProviderTest {
 
     @Test
     public void testProperties() throws Exception {
-        assertEquals(MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.host"), "mongodb://localhost:12345");
-        assertEquals(MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.db"), "testdb");
-        assertEquals(MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.col"), "testcol");
+        assertEquals("mongodb://localhost:27017", MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.host"));
+        assertEquals("dfltdb", MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.db"));
+        assertEquals("dfltcol", MongoJournalStoreProvider.properties("mongoprovider.properties").getProperty("com.projectbarbel.histo.persistence.mongo.col"));
     }
 
 }
