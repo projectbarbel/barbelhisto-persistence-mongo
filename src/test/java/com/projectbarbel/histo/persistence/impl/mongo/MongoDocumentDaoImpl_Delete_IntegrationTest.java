@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.mongodb.client.MongoClient;
 import com.projectbarbel.histo.persistence.mongo.DefaultMongoValueObject;
 import com.projectbarbel.histo.persistence.mongo.MongoDocumentDaoImpl;
-import com.projectbarbel.histo.persistence.util.BarbelTestHelper;
 
 public class MongoDocumentDaoImpl_Delete_IntegrationTest {
 

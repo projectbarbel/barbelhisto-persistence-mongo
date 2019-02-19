@@ -5,8 +5,7 @@ import java.util.Objects;
 import javax.annotation.Generated;
 
 import org.bson.types.ObjectId;
-
-import com.projectbarbel.histo.persistence.api.BitemporalStamp;
+import org.projectbarbel.histo.model.BitemporalStamp;
 
 public class DefaultMongoValueObject {
 

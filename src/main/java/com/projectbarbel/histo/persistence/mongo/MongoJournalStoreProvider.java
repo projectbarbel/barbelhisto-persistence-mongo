@@ -14,16 +14,15 @@ import java.util.Properties;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.projectbarbel.histo.DocumentJournal;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import com.projectbarbel.histo.persistence.api.DocumentJournal;
-import com.projectbarbel.histo.persistence.api.JournalStoreProvider;
 
-public class MongoJournalStoreProvider<T> implements JournalStoreProvider<T> {
+public class MongoJournalStoreProvider<T> {
 
     private static final String HOSTPROPNAME = "com.projectbarbel.histo.persistence.mongo.host";
     private static final String DFLTDBNAME = "com.projectbarbel.histo.persistence.mongo.db";
@@ -86,14 +85,13 @@ public class MongoJournalStoreProvider<T> implements JournalStoreProvider<T> {
         return appProps;
     }
 
-    public DocumentJournal<T> loadJournal(String documentId) {
+    public DocumentJournal loadJournal(String documentId) {
         @SuppressWarnings("unused")
         MongoCollection<T> col = mongoClient.getDatabase(dfltDbName).getCollection(dfltColName, journalType); 
         return null;
     }
 
-    @Override
-    public long persistJournal(DocumentJournal<T> journal) {
+    public long persistJournal(DocumentJournal journal) {
         return 0;
     }
 

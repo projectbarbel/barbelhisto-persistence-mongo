@@ -24,9 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.projectbarbel.histo.model.BitemporalStamp;
 
-import com.projectbarbel.histo.persistence.api.BitemporalStamp;
-import com.projectbarbel.histo.persistence.util.BarbelTestHelper;
+import com.projectbarbel.histo.persistence.impl.mongo.BarbelTestHelper;
+
 
 public class BitemporalCodecTest {
 
@@ -57,7 +58,7 @@ public class BitemporalCodecTest {
         verify(writer, times(5)).writeString(documentCapture.capture(),documentCapture.capture());
         assertEquals(documentCapture.getAllValues().get(1), stamp.getDocumentId());
         assertEquals(documentCapture.getAllValues().get(3), stamp.getRecordTime().getCreatedBy());
-        assertEquals(documentCapture.getAllValues().get(5), stamp.getRecordTime().getState());
+        assertEquals(documentCapture.getAllValues().get(5), stamp.getRecordTime().getState().name());
         assertEquals(documentCapture.getAllValues().get(7), stamp.getRecordTime().getInactivatedBy());
         assertEquals(documentCapture.getAllValues().get(9), stamp.getActivity());
     }

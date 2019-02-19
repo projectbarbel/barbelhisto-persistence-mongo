@@ -9,8 +9,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.bson.BsonBinary;
@@ -19,11 +19,10 @@ import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
-
-import com.projectbarbel.histo.persistence.api.BitemporalStamp;
-import com.projectbarbel.histo.persistence.api.BitemporalStamp.Builder;
-import com.projectbarbel.histo.persistence.api.EffectivePeriod;
-import com.projectbarbel.histo.persistence.api.RecordPeriod;
+import org.projectbarbel.histo.model.BitemporalStamp;
+import org.projectbarbel.histo.model.BitemporalStamp.Builder;
+import org.projectbarbel.histo.model.EffectivePeriod;
+import org.projectbarbel.histo.model.RecordPeriod;
 
 public class BitemporalCodec implements Codec<BitemporalStamp> {
 
@@ -33,15 +32,15 @@ public class BitemporalCodec implements Codec<BitemporalStamp> {
         writer.writeStartDocument();
         BsonBinary binary = new BsonBinary(toByteArray(value.getVersionId()));
         writer.writeBinaryData("versionId", binary);
-        writer.writeString("documentId", value.getDocumentId());
+        writer.writeString("documentId", (String)value.getDocumentId());
         writer.writeDateTime("from",
-                Date.from(value.getEffectiveTime().getFrom().atStartOfDay(ZoneId.of("Z")).toInstant()).getTime());
+                Date.from(value.getEffectiveTime().from().atStartOfDay(ZoneId.of("Z")).toInstant()).getTime());
         writer.writeDateTime("until",
-                Date.from(value.getEffectiveTime().getUntil().atStartOfDay(ZoneId.of("Z")).toInstant()).getTime());
+                Date.from(value.getEffectiveTime().until().atStartOfDay(ZoneId.of("Z")).toInstant()).getTime());
         writer.writeBinaryData("createdAt", new BsonBinary(toByteArray(value.getRecordTime().getCreatedAt())));
         writer.writeString("createdBy", value.getRecordTime().getCreatedBy());
         writer.writeBinaryData("inactivatedAt", new BsonBinary(toByteArray(value.getRecordTime().getInactivatedAt())));
-        writer.writeString("status", value.getRecordTime().getState());
+        writer.writeString("status", value.getRecordTime().getState().name());
         writer.writeString("inactivatedBy", value.getRecordTime().getInactivatedBy());
         writer.writeString("activity", value.getActivity());
         writer.writeEndDocument();
@@ -59,16 +58,18 @@ public class BitemporalCodec implements Codec<BitemporalStamp> {
         reader.readStartDocument();
         builder.withVersionId(fromByteArray(reader.readBinaryData("versionId").getData()));
         builder.withDocumentId(reader.readString("documentId"));
-        builder.withEffectiveTime(new EffectivePeriod(
+        builder.withEffectiveTime(EffectivePeriod.of(
                 Instant.ofEpochMilli(reader.readDateTime("from")).atZone(ZoneId.of("Z")).toLocalDate(),
                 Instant.ofEpochMilli(reader.readDateTime("until")).atZone(ZoneId.of("Z")).toLocalDate()));
-        LocalDateTime createdAt = (LocalDateTime) fromByteArray(reader.readBinaryData("createdAt").getData());
+        ZonedDateTime createdAt = (ZonedDateTime) fromByteArray(reader.readBinaryData("createdAt").getData());
         String createdBy = reader.readString("createdBy");
-        LocalDateTime inactivatedAt = (LocalDateTime) fromByteArray(reader.readBinaryData("inactivatedAt").getData());
+        ZonedDateTime inactivatedAt = (ZonedDateTime) fromByteArray(reader.readBinaryData("inactivatedAt").getData());
+        @SuppressWarnings("unused")
         String state = reader.readString("status");
         String inactivatedBy = reader.readString("inactivatedBy");
-        builder.withRecordTime(new RecordPeriod(ZoneId.systemDefault(), createdAt, createdBy, inactivatedAt,
-                inactivatedBy, state));
+        builder.withRecordTime(RecordPeriod.builder().createdAt(createdAt)
+                .createdBy(createdBy).inactivatedAt(inactivatedAt)
+                .inactivatedBy(inactivatedBy).build());
         builder.withActivity(reader.readString("activity"));
         reader.readEndDocument();
         return builder.build();
