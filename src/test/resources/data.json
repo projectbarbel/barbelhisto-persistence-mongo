@@ -1,0 +1,12 @@
+[
+{
+    "name" : "Admin",
+    "age" : 36,
+    "rights" : [ "admin", "editor", "contributor" ]
+},
+{
+    "name" : "Other",
+    "age" : 36,
+    "rights" : [ "admin", "editor", "contributor" ]
+}
+]
