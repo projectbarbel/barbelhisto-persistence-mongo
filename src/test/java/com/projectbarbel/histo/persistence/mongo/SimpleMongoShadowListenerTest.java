@@ -7,11 +7,11 @@ import org.projectbarbel.histo.model.DefaultPojo;
 
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
-public class MongoShadowListenerTest {
+public class SimpleMongoShadowListenerTest {
 
     @Test
     public void testCreate() throws Exception {
-        MongoShadowListener listener = MongoShadowListener.create(FlapDoodleEmbeddedMongo.instance().client(), "testDb",
+        SimpleMongoShadowListener listener = SimpleMongoShadowListener.create(FlapDoodleEmbeddedMongo.instance().client(), "testDb",
                 "testCol", DefaultPojo.class);
         assertNotNull(listener);
     }

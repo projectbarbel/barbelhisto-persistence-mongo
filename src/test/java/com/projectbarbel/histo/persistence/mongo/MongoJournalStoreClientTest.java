@@ -14,13 +14,13 @@ public class MongoJournalStoreClientTest {
 
     @Test
         public void testCreateFromProperties() throws Exception {
-            MongoJournalStoreClient<DefaultMongoValueObject> instance = MongoJournalStoreClient.createFromProperties(DefaultMongoValueObject.class);
+            MongoJournalStoreClient instance = MongoJournalStoreClient.createFromProperties();
             assertNotNull(instance);
         }
 
     @Test
     public void testCreate() throws Exception {
-        MongoJournalStoreClient<DefaultDocument> instance = MongoJournalStoreClient.create(DefaultDocument.class, "mongodb://localhost:12345", "db", "col");
+        MongoJournalStoreClient instance = MongoJournalStoreClient.create("mongodb://localhost:12345", "db", "col");
         MongoClient client = instance.getMongoClient();
         MongoCollection<DefaultDocument> collection = client.getDatabase("db").getCollection("col", DefaultDocument.class);
         collection.insertOne(new DefaultDocument());
@@ -30,7 +30,7 @@ public class MongoJournalStoreClientTest {
     @Test
         public void testCreateFromProperties_withFlapdoodle() throws Exception {
             FlapDoodleEmbeddedMongo.instance();
-            MongoJournalStoreClient<DefaultMongoValueObject> instance = MongoJournalStoreClient.createFromProperties(DefaultMongoValueObject.class);
+            MongoJournalStoreClient instance = MongoJournalStoreClient.createFromProperties();
             assertNotNull(instance);
         }
 

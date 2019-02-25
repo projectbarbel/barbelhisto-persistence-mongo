@@ -25,9 +25,23 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
 
-public class MongoShadowListener {
+/**
+ * Mongo shadow listener implementation to mirror {@link BarbelHisto} backbone
+ * to {@link MongoCollection} and pre-fetch saved data from previous sessions
+ * back to {@link BarbelHisto}. No persistent locking is applied, so applications
+ * need to share a single instance of {@link BarbelHisto} using this
+ * listener.<br>
+ * <br>
+ * 
+ * Since the persisted type is computed at runtime depending on the
+ * {@link BarbelMode} the class uses raw types and unchecked casts.
+ * 
+ * @author Niklas Schlimm
+ *
+ */
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class SimpleMongoShadowListener {
 
-    @SuppressWarnings("rawtypes")
     private MongoCollection shadow;
     private final MongoClient client;
     private final String dbName;
@@ -37,7 +51,7 @@ public class MongoShadowListener {
     private String versionIdFieldName;
     private String documentIdFieldName;
 
-    public <T> MongoShadowListener(MongoClient client, String dbName, String collectionName, Class<T> managedType) {
+    public <T> SimpleMongoShadowListener(MongoClient client, String dbName, String collectionName, Class<T> managedType) {
         this.client = client;
         this.dbName = dbName;
         this.collectionName = collectionName;
@@ -50,9 +64,9 @@ public class MongoShadowListener {
         this.documentIdFieldName = mode.getDocumentIdFieldName(managedType);
     }
 
-    public static MongoShadowListener create(MongoClient client, String dbName, String collectionName,
+    public static SimpleMongoShadowListener create(MongoClient client, String dbName, String collectionName,
             Class<?> managedType) {
-        return new MongoShadowListener(client, dbName, collectionName, managedType);
+        return new SimpleMongoShadowListener(client, dbName, collectionName, managedType);
     }
 
     private String drawVersionIdFieldName() {
@@ -64,7 +78,6 @@ public class MongoShadowListener {
         shadow = client.getDatabase(dbName).getCollection(collectionName, mode.getPersistenceObjectType(managedType));
     }
 
-    @SuppressWarnings("unchecked")
     @Subscribe
     public void handleInserts(InsertBitemporalEvent event) {
         List<Bitemporal> managedBitemporalsInserted = (List<Bitemporal>) event.getEventContext()
@@ -74,7 +87,6 @@ public class MongoShadowListener {
         shadow.insertMany(os);
     }
 
-    @SuppressWarnings("unchecked")
     @Subscribe
     public void handleReplacements(ReplaceBitemporalEvent event) {
         List<?> managedBitemporalsAdded = (List<?>) event.getEventContext().get(ReplaceBitemporalEvent.OBJECTS_ADDED);
@@ -93,7 +105,6 @@ public class MongoShadowListener {
                 .deleteOne(eq(versionIdFieldName, ((Bitemporal) objectToRemove).getBitemporalStamp().getVersionId()));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Subscribe
     public void handleRetrieveData(RetrieveDataEvent event) {
         Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
@@ -106,7 +117,6 @@ public class MongoShadowListener {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Subscribe
     public void handleInitializeJournal(InitializeJournalEvent event) {
         DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);

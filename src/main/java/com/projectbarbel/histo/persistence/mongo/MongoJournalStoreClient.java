@@ -21,13 +21,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 /**
- * Class that creates the connection to the underlying journal store in mongo.
+ * Class that creates the connection to the underlying journal store in MongoDB.
  * 
  * @author Niklas Schlimm
  *
- * @param <T> the managed type
  */
-public class MongoJournalStoreClient<T> {
+public class MongoJournalStoreClient {
 
     private static final String HOSTPROPNAME = "com.projectbarbel.histo.persistence.mongo.host";
     private static final String DFLTDBNAME = "com.projectbarbel.histo.persistence.mongo.db";
@@ -35,28 +34,23 @@ public class MongoJournalStoreClient<T> {
     private static final String DFLTCONFIGFILE = "mongoprovider.properties";
 
     private final MongoClient mongoClient;
-    private final Class<T> journalType;
 
-    private MongoJournalStoreClient(Class<T> journalType, MongoClient client) {
+    private MongoJournalStoreClient(MongoClient client) {
         this.mongoClient = client;
-        this.journalType = journalType;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends MongoJournalStoreClient<O>, O> T create(Class<O> journalType,
-            MongoClientSettings settings) {
+    public static MongoJournalStoreClient create(MongoClientSettings settings) {
         MongoClient client = MongoClients.create(settings);
-        return (T) new MongoJournalStoreClient<O>(journalType, client);
+        return new MongoJournalStoreClient(client);
     }
 
-    public static <T extends MongoJournalStoreClient<O>, O> T createFromProperties(Class<O> journalType) {
-        return create(journalType, properties(DFLTCONFIGFILE).getProperty(HOSTPROPNAME),
+    public static MongoJournalStoreClient createFromProperties() {
+        return create(properties(DFLTCONFIGFILE).getProperty(HOSTPROPNAME),
                 properties(DFLTCONFIGFILE).getProperty(DFLTDBNAME),
                 properties(DFLTCONFIGFILE).getProperty(DFLTCOLNAME));
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends MongoJournalStoreClient<O>, O> T create(Class<O> journalType, String hostName,
+    public static MongoJournalStoreClient create(String hostName,
             String dfltDbName, String dfltColName) {
         CodecRegistry registry = fromRegistries(CodecRegistries.fromCodecs(new BitemporalCodec()),
                 MongoClientSettings.getDefaultCodecRegistry(),
@@ -64,7 +58,7 @@ public class MongoJournalStoreClient<T> {
         MongoClientSettings settings = MongoClientSettings.builder().codecRegistry(registry)
                 .applyConnectionString(new ConnectionString(hostName)).build();
         MongoClient client = MongoClients.create(settings);
-        return (T) new MongoJournalStoreClient<O>(journalType, client);
+        return new MongoJournalStoreClient(client);
     }
 
     protected static Properties properties(String configFileName) {
@@ -85,10 +79,6 @@ public class MongoJournalStoreClient<T> {
 
     public MongoClient getMongoClient() {
         return mongoClient;
-    }
-
-    public Class<T> getJournalType() {
-        return journalType;
     }
 
 }
