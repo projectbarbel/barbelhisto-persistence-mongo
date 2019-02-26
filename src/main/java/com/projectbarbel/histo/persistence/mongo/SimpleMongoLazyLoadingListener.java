@@ -112,6 +112,7 @@ public class SimpleMongoLazyLoadingListener {
             BarbelHisto histo = (BarbelHisto) event.getEventContext().get(RetrieveDataEvent.BARBEL);
             List docs = (List) StreamSupport
                     .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
+                    .map(d -> toPersistedType((Document) d))
                     .collect(Collectors.toList());
             histo.load(docs);
         } catch (Exception e) {

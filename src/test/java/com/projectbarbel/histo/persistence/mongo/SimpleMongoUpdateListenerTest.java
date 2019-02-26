@@ -1,10 +1,11 @@
 package com.projectbarbel.histo.persistence.mongo;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
@@ -15,8 +16,15 @@ import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 public class SimpleMongoUpdateListenerTest {
 
-    FlapDoodleEmbeddedMongo mongo = FlapDoodleEmbeddedMongo.instance();
+    @SuppressWarnings("unused")
+    private static FlapDoodleEmbeddedMongo mongo;
 
+    @BeforeAll
+    public static void setUp() {
+        mongo = FlapDoodleEmbeddedMongo.instance();
+        SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
+    }
+    
     @Test
     public void testHandleUpdate() throws Exception {
         SimpleMongoListenerClient client = SimpleMongoListenerClient.create("mongodb://localhost:12345");

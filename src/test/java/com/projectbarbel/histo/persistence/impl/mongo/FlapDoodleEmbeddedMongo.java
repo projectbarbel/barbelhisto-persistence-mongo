@@ -46,8 +46,7 @@ public class FlapDoodleEmbeddedMongo {
         return MONGOSERVER;
     }
 
-    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection)
-            throws UnknownHostException, IOException {
+    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection) throws UnknownHostException, IOException {
         int defaultConfigPort = 12345;
         String defaultHost = "localhost";
 

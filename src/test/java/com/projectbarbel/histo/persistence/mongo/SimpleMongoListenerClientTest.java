@@ -1,10 +1,10 @@
 package com.projectbarbel.histo.persistence.mongo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.bson.Document;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.model.DefaultDocument;
 
 import com.google.gson.Gson;
@@ -40,10 +40,6 @@ public class SimpleMongoListenerClientTest {
     public void testProperties() throws Exception {
         assertEquals("mongodb://localhost:12345", SimpleMongoListenerClient.properties("mongoprovider.properties")
                 .getProperty("com.projectbarbel.histo.persistence.mongo.host"));
-        assertEquals("dfltdb", SimpleMongoListenerClient.properties("mongoprovider.properties")
-                .getProperty("com.projectbarbel.histo.persistence.mongo.db"));
-        assertEquals("dfltcol", SimpleMongoListenerClient.properties("mongoprovider.properties")
-                .getProperty("com.projectbarbel.histo.persistence.mongo.col"));
     }
 
 }
