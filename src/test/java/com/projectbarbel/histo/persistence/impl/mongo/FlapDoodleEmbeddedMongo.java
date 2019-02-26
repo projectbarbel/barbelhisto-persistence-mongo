@@ -1,20 +1,7 @@
 package com.projectbarbel.histo.persistence.impl.mongo;
 
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-
 import java.io.IOException;
 import java.net.UnknownHostException;
-
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.projectbarbel.histo.persistence.mongo.BitemporalCodec;
 
 import de.flapdoodle.embed.mongo.MongoImportExecutable;
 import de.flapdoodle.embed.mongo.MongoImportProcess;
@@ -59,28 +46,13 @@ public class FlapDoodleEmbeddedMongo {
         return MONGOSERVER;
     }
 
-    public MongoClient client() {
-        CodecRegistry registry = fromRegistries(CodecRegistries.fromCodecs(new BitemporalCodec()),
-                MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-        MongoClientSettings settings = MongoClientSettings.builder().codecRegistry(registry)
-                .applyConnectionString(new ConnectionString("mongodb://localhost:12345")).build();
-        MongoClient client = MongoClients.create(settings);
-        return client;
-    }
-
-    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection) throws UnknownHostException, IOException {
+    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection)
+            throws UnknownHostException, IOException {
         int defaultConfigPort = 12345;
         String defaultHost = "localhost";
 
-        MongoImportProcess mongoImport = startMongoImport(defaultHost, defaultConfigPort, database, collection,
+        startMongoImport(defaultHost, defaultConfigPort, database, collection,
                 jsonFile, true, true, true);
-        try {
-            MongoClient mongoClient = client();
-            System.out.println("DB Names: " + mongoClient.getDatabase(database).getName());
-        } finally {
-            mongoImport.stop();
-        }
     }
 
     private MongoImportProcess startMongoImport(String bindIp, int port, String dbName, String collection,
