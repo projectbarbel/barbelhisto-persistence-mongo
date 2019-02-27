@@ -15,7 +15,8 @@ import com.mongodb.client.MongoClients;
 
 /**
  * Class that creates the connection to the underlying journal store in MongoDB.
- * Optional use, client can use their own client settings.
+ * Optional use, clients can use their own mongo client configurations with the
+ * listener instances.
  * 
  * @author Niklas Schlimm
  *
