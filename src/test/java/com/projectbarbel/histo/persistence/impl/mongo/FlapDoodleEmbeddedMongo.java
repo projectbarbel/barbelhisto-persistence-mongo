@@ -18,7 +18,7 @@ import de.flapdoodle.embed.process.runtime.Network;
 
 public class FlapDoodleEmbeddedMongo {
 
-    private static MongodStarter starter;
+    private static MongodStarter starter = MongodStarter.getDefaultInstance();
     private static MongodExecutable _mongodExe;
     private static MongodProcess _mongod;
 
@@ -31,7 +31,6 @@ public class FlapDoodleEmbeddedMongo {
      */
     public static FlapDoodleEmbeddedMongo instance() {
         try {
-            starter=MongodStarter.getDefaultInstance();
             if (MONGOSERVER == null) {
                 _mongodExe = starter.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                         .net(new Net("localhost", 12345, Network.localhostIsIPv6())).build());
