@@ -19,7 +19,6 @@ import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelHistoCore;
-import org.projectbarbel.histo.model.DefaultPojo;
 import org.slf4j.LoggerFactory;
 
 import com.projectbarbel.histo.persistence.impl.mongo.BarbelTestHelper;
@@ -30,7 +29,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import io.github.benas.randombeans.api.EnhancedRandom;
 
-public class BarbelCoreSaveMemoryTest {
+public class BarbelCoreSaveMemoryKfzVertraegeTest {
 
     static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1); // no
     static ScheduledFuture<?> t;
@@ -38,14 +37,14 @@ public class BarbelCoreSaveMemoryTest {
     private int maxVersions = 500000;
     private boolean dump = true;
 
-    private long timeoutInSeconds = 10;
+    private long timeoutInSeconds = 15;
 
     static class MyTask implements Runnable {
         private boolean dump;
         private int pojoCount;
-        private BarbelHisto<DefaultPojo> core;
+        private BarbelHisto<KfzVersicherungsVertrag> core;
 
-        public MyTask(BarbelHisto<DefaultPojo> core, boolean dump, int maxVersions, int pojoCount) {
+        public MyTask(BarbelHisto<KfzVersicherungsVertrag> core, boolean dump, int maxVersions, int pojoCount) {
             this.core = core;
             this.dump = dump;
             this.pojoCount = pojoCount;
@@ -54,21 +53,21 @@ public class BarbelCoreSaveMemoryTest {
 
         @Override
         public void run() {
-            List<DefaultPojo> pojos = EnhancedRandom.randomListOf(pojoCount, DefaultPojo.class);
+            List<KfzVersicherungsVertrag> pojos = EnhancedRandom.randomListOf(pojoCount, KfzVersicherungsVertrag.class);
             String id = "someId";
-            for (DefaultPojo pojo : pojos) {
-                pojo.setDocumentId(id);
+            for (KfzVersicherungsVertrag pojo : pojos) {
+                pojo.setVnr(id);
             }
             long time = new Date().getTime();
             System.out.println("######### Pre-fetching #########");
-            System.out.println("Core size before first insert: " + ((BarbelHistoCore<DefaultPojo>) core).size());
+            System.out.println("Core size before first insert: " + ((BarbelHistoCore<KfzVersicherungsVertrag>) core).size());
             boolean first = true;
             for (Object pojo : pojos) {
-                core.save((DefaultPojo) pojo,
+                core.save((KfzVersicherungsVertrag) pojo,
                         BarbelTestHelper.randomLocalDate(LocalDate.of(2010, 1, 1), LocalDate.of(2015, 1, 1)),
                         BarbelTestHelper.randomLocalDate(LocalDate.of(2015, 1, 2), LocalDate.of(2020, 1, 1)));
                 if (first) {
-                    System.out.println("Core size after first insert: " + ((BarbelHistoCore<DefaultPojo>) core).size());
+                    System.out.println("Core size after first insert: " + ((BarbelHistoCore<KfzVersicherungsVertrag>) core).size());
                     first = false;
                 }
             }
@@ -80,7 +79,7 @@ public class BarbelCoreSaveMemoryTest {
                     .divide(new BigDecimal(pojoCount)).round(new MathContext(4, RoundingMode.HALF_UP)) + " ms");
             printBarbelStatitics();
             if (dump) {
-                ((BarbelHistoCore<DefaultPojo>) core).unloadAll();
+                ((BarbelHistoCore<KfzVersicherungsVertrag>) core).unloadAll();
                 System.out.println("Core dumped ----> o");
             }
             printMemory();
@@ -113,10 +112,10 @@ public class BarbelCoreSaveMemoryTest {
         SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
         client.getMongoClient().getDatabase("testDb").drop();
         SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
-                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+                "testCol", KfzVersicherungsVertrag.class, BarbelHistoContext.getDefaultGson());
         SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
-                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
-        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                "testCol", KfzVersicherungsVertrag.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<KfzVersicherungsVertrag> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).build();
         t = executor.scheduleAtFixedRate(new MyTask(core, dump, maxVersions, pojoCount), 0, 2, TimeUnit.SECONDS);
         assertThrows(TimeoutException.class, () -> t.get(timeoutInSeconds, TimeUnit.SECONDS));

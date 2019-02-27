@@ -10,7 +10,7 @@ import org.apache.commons.lang3.Validate;
 import org.bson.Document;
 import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelMode;
-import org.projectbarbel.histo.DocumentJournal.Replacement;
+import org.projectbarbel.histo.DocumentJournal.Inactivation;
 import org.projectbarbel.histo.event.EventType.BarbelInitializedEvent;
 import org.projectbarbel.histo.event.EventType.UpdateFinishedEvent;
 import org.projectbarbel.histo.model.Bitemporal;
@@ -79,14 +79,18 @@ public class SimpleMongoUpdateListener {
             List<Bitemporal> managedBitemporalsInserted = (List<Bitemporal>) event.getEventContext()
                     .get(UpdateFinishedEvent.NEWVERSIONS);
             @SuppressWarnings("unchecked")
-            Set<Replacement> replacements = (Set<Replacement>) event.getEventContext()
-                    .get(UpdateFinishedEvent.REPLACEMENTS);
+            Set<Inactivation> inactivations = (Set<Inactivation>) event.getEventContext()
+                    .get(UpdateFinishedEvent.INACTIVATIONS);
             // delete first ! cause version id is the key for deletion, and replaced new
             // objects carry same version IDs
-            List<Bitemporal> objectsRemoved = replacements.stream().flatMap(r -> r.getObjectsRemoved().stream())
-                    .map(v -> mode.managedBitemporalToCustomPersistenceObject(v)).collect(Collectors.toList());
+            List<Bitemporal> objectsRemoved = inactivations.stream()
+                    .map(r -> mode.managedBitemporalToCustomPersistenceObject(r.getObjectRemoved()))
+                    .collect(Collectors.toList());
             List<DeleteResult> results = (List<DeleteResult>) objectsRemoved.stream()
                     .map(objectToRemove -> (DeleteResult) delete(objectToRemove)).collect(Collectors.toList());
+            if (results.stream().filter(r -> r.getDeletedCount() != 1).count() != 0) {
+                System.out.println("halt");
+            }
             Validate.isTrue(results.stream().filter(r -> r.getDeletedCount() != 1).count() == 0,
                     "no valid delete results");
             // // @formatter:off
@@ -95,9 +99,8 @@ public class SimpleMongoUpdateListener {
                     .map(v -> gson.toJson(v)) // to json
                     .map(v -> Document.parse(v)) // to mongo Document
                     .collect(Collectors.toList()); // to list
-            List<Document> documentsAddedOnReplacements = replacements.stream()
-                    .flatMap(r -> r.getObjectsAdded().stream()) // to stream of managed objects
-                    .map(v -> mode.managedBitemporalToCustomPersistenceObject(v)) // to persistence objects
+            List<Document> documentsAddedOnReplacements = inactivations.stream()
+                    .map(r -> mode.managedBitemporalToCustomPersistenceObject(r.getObjectAdded())) // to persistence objects
                     .map(v -> gson.toJson(v)) // to json
                     .map(v -> Document.parse(v)) // to mongo Document
                     .collect(Collectors.toList()); // to list

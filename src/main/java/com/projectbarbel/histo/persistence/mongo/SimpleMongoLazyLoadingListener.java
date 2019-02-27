@@ -25,8 +25,7 @@ import com.mongodb.client.MongoCollection;
 
 /**
  * Mongo shadow lazy loading listener implementation to pre-fetch saved data
- * from previous sessions back to {@link BarbelHisto}. 
- * <br> 
+ * from previous sessions back to {@link BarbelHisto}. <br>
  * 
  * @author Niklas Schlimm
  *
@@ -81,7 +80,8 @@ public class SimpleMongoLazyLoadingListener {
             List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
                     .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
                     .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-            histo.load(docs);
+            if (!histo.contains(id))
+                histo.load(docs);
         } catch (Exception e) {
             event.failed(e);
         }

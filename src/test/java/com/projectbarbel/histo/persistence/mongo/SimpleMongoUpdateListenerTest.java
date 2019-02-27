@@ -28,6 +28,7 @@ public class SimpleMongoUpdateListenerTest {
     @Test
     public void testHandleUpdate() throws Exception {
         SimpleMongoListenerClient client = SimpleMongoListenerClient.create("mongodb://localhost:12345");
+        client.getMongoClient().getDatabase("testDb").drop();
         SimpleMongoUpdateListener listener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
                 "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
         BarbelHisto<DefaultPojo> histo = BarbelHistoBuilder.barbel().withSynchronousEventListener(listener).build();
