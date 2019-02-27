@@ -24,34 +24,27 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 
 /**
- * Mongo shadow listener implementation to mirror {@link BarbelHisto} backbone
- * to {@link MongoCollection} and pre-fetch saved data from previous sessions
- * back to {@link BarbelHisto}. No persistent locking is applied, so
- * applications need to share a single instance of {@link BarbelHisto} using
- * this listener.<br>
- * <br>
- * 
- * Since the persisted type is computed at runtime depending on the
- * {@link BarbelMode} the class uses raw types.
+ * Mongo shadow lazy loading listener implementation to pre-fetch saved data
+ * from previous sessions back to {@link BarbelHisto}. 
+ * <br> 
  * 
  * @author Niklas Schlimm
  *
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SimpleMongoLazyLoadingListener {
 
-    private MongoCollection shadow;
+    private MongoCollection<Document> shadow;
     private final MongoClient client;
     private final String dbName;
     private final String collectionName;
-    private final Class managedType;
-    private final Class persistedType;
+    private final Class<?> managedType;
+    private final Class<?> persistedType;
     private final BarbelMode mode;
     private String documentIdFieldName;
     private Gson gson;
 
-    private SimpleMongoLazyLoadingListener(MongoClient client, String dbName, String collectionName, Class managedType,
-            Gson gson) {
+    private SimpleMongoLazyLoadingListener(MongoClient client, String dbName, String collectionName,
+            Class<?> managedType, Gson gson) {
         this.client = client;
         this.dbName = dbName;
         this.collectionName = collectionName;
@@ -66,7 +59,7 @@ public class SimpleMongoLazyLoadingListener {
     }
 
     public static SimpleMongoLazyLoadingListener create(MongoClient client, String dbName, String collectionName,
-            Class managedType, Gson gson) {
+            Class<?> managedType, Gson gson) {
         return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson);
     }
 
@@ -82,13 +75,12 @@ public class SimpleMongoLazyLoadingListener {
     @Subscribe
     public void handleRetrieveData(RetrieveDataEvent event) {
         try {
-            Query query = (Query) event.getEventContext().get(RetrieveDataEvent.QUERY);
-            BarbelHisto histo = (BarbelHisto) event.getEventContext().get(RetrieveDataEvent.BARBEL);
+            Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
+            BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
             final Object id = BarbelQueries.returnIDForQuery(query);
-            List<Object> docs = (List<Object>) StreamSupport
+            List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
                     .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
-                    .map(d -> toPersistedType((Document) d))
-                    .collect(Collectors.toList());
+                    .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
             histo.load(docs);
         } catch (Exception e) {
             event.failed(e);
@@ -109,11 +101,10 @@ public class SimpleMongoLazyLoadingListener {
     public void handleInitializeJournal(InitializeJournalEvent event) {
         try {
             DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);
-            BarbelHisto histo = (BarbelHisto) event.getEventContext().get(RetrieveDataEvent.BARBEL);
-            List docs = (List) StreamSupport
+            BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
+            List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
                     .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
-                    .map(d -> toPersistedType((Document) d))
-                    .collect(Collectors.toList());
+                    .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
             histo.load(docs);
         } catch (Exception e) {
             event.failed(e);

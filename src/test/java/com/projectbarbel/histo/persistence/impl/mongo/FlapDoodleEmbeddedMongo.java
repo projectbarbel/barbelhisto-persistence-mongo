@@ -18,7 +18,7 @@ import de.flapdoodle.embed.process.runtime.Network;
 
 public class FlapDoodleEmbeddedMongo {
 
-    private static final MongodStarter starter = MongodStarter.getDefaultInstance();
+    private static MongodStarter starter;
     private static MongodExecutable _mongodExe;
     private static MongodProcess _mongod;
 
@@ -31,6 +31,7 @@ public class FlapDoodleEmbeddedMongo {
      */
     public static FlapDoodleEmbeddedMongo instance() {
         try {
+            starter=MongodStarter.getDefaultInstance();
             if (MONGOSERVER == null) {
                 _mongodExe = starter.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                         .net(new Net("localhost", 12345, Network.localhostIsIPv6())).build());
@@ -46,12 +47,12 @@ public class FlapDoodleEmbeddedMongo {
         return MONGOSERVER;
     }
 
-    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection) throws UnknownHostException, IOException {
+    public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection)
+            throws UnknownHostException, IOException {
         int defaultConfigPort = 12345;
         String defaultHost = "localhost";
 
-        startMongoImport(defaultHost, defaultConfigPort, database, collection,
-                jsonFile, true, true, true);
+        startMongoImport(defaultHost, defaultConfigPort, database, collection, jsonFile, true, true, true);
     }
 
     private MongoImportProcess startMongoImport(String bindIp, int port, String dbName, String collection,

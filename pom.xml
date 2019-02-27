@@ -195,7 +195,7 @@
 		<dependency>
 			<groupId>org.projectbarbel</groupId>
 			<artifactId>barbelhisto</artifactId>
-			<version>1.5.0-SNAPSHOT</version>
+			<version>1.6.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>
@@ -208,6 +208,16 @@
 			<version>3.8.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
 			<version>2.2.0</version>
@@ -216,13 +226,13 @@
 		<dependency>
 			<groupId>io.github.benas</groupId>
 			<artifactId>random-beans</artifactId>
-			<version>3.7.0</version>
+			<version>3.8.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.23.4</version>
+			<version>2.24.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
