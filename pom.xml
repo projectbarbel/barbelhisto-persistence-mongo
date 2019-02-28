@@ -191,6 +191,26 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+		    <!-- Standard for test suite execution -->
+			<id>Sonatype</id>
+			<name>Central Repository</name>
+			<releases>
+				<enabled>false</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.projectbarbel</groupId>
