@@ -27,6 +27,8 @@ public class SimpleMongoListenerClient {
     private static final String DFLTCONFIGFILE = "mongoprovider.properties";
 
     private final MongoClient mongoClient;
+    
+    public final static SimpleMongoListenerClient INSTANCE = createFromProperties();
 
     private SimpleMongoListenerClient(MongoClient client) {
         this.mongoClient = client;

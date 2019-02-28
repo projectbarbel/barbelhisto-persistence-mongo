@@ -42,12 +42,15 @@ public class SimpleMongoUpdateListener {
     private final BarbelMode mode;
     private String versionIdFieldName;
     private final Gson gson;
+    @SuppressWarnings("unused")
+    private final Class<?> managedType;
 
     public SimpleMongoUpdateListener(MongoClient client, String dbName, String collectionName, Class<?> managedType,
             Gson gson) {
         this.client = client;
         this.dbName = dbName;
         this.collectionName = collectionName;
+        this.managedType = managedType;
         this.gson = gson;
         if (Bitemporal.class.isAssignableFrom(managedType)) {
             mode = BarbelMode.BITEMPORAL;
@@ -56,6 +59,7 @@ public class SimpleMongoUpdateListener {
         }
         this.versionIdFieldName = mode.getStampFieldName(mode.getPersistenceObjectType(managedType),
                 BitemporalStamp.class) + VERSION_ID;
+        
     }
 
     public static SimpleMongoUpdateListener create(MongoClient client, String dbName, String collectionName,
@@ -88,11 +92,7 @@ public class SimpleMongoUpdateListener {
                     .collect(Collectors.toList());
             List<DeleteResult> results = (List<DeleteResult>) objectsRemoved.stream()
                     .map(objectToRemove -> (DeleteResult) delete(objectToRemove)).collect(Collectors.toList());
-            if (results.stream().filter(r -> r.getDeletedCount() != 1).count() != 0) {
-                System.out.println("halt");
-            }
-            Validate.isTrue(results.stream().filter(r -> r.getDeletedCount() != 1).count() == 0,
-                    "no valid delete results");
+            Validate.validState(results.stream().filter(r -> r.getDeletedCount() != 1).count() == 0,"delete operation failed - delete count must always be = 1");
             // // @formatter:off
             List<Document> documentsToInsert = managedBitemporalsInserted.stream()
                     .map(v -> mode.managedBitemporalToCustomPersistenceObject(v)) // to persistence object
