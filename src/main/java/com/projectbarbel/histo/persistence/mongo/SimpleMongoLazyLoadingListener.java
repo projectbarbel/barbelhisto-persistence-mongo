@@ -2,6 +2,7 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,6 +28,13 @@ import com.mongodb.client.MongoCollection;
 /**
  * Mongo shadow lazy loading listener implementation to pre-fetch saved data
  * from previous sessions back to {@link BarbelHisto}. <br>
+ * 
+ * The simple listener implementations do not lock a document journal in the
+ * database. Therefore clients want to create a {@link BarbelHisto} singleton
+ * instance to ensure locking is performed properly on a document journal level.
+ * The simple listener implementations provide support for all
+ * {@link BarbelQueries} and all custom queries as long they use the
+ * {@link BarbelQueries#DOCUMENT_ID} as a filter criterion.
  * 
  * @author Niklas Schlimm
  *
@@ -77,17 +85,19 @@ public class SimpleMongoLazyLoadingListener {
         try {
             Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
             BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
-            final Object id = BarbelQueries.returnIDForQuery(query);
-            if (id != null) {
-                List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
-                        .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
-                        .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-                if (!histo.contains(id))
-                    histo.load(docs);
+            final List<Object> ids = BarbelQueries.returnIDsForQuery(query, new ArrayList<>());
+            if (ids.size()>0) {
+                for (Object id : ids) {
+                    List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
+                            .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
+                            .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+                    if (!histo.contains(id))
+                        histo.load(docs);
+                }
             } else {
                 List<Bitemporal> docs = (List<Bitemporal>) StreamSupport.stream(shadow.find().spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-                if (((BarbelHistoCore<?>)histo).size()==0)
+                if (((BarbelHistoCore<?>) histo).size() == 0)
                     histo.load(docs);
             }
         } catch (Exception e) {
