@@ -3,14 +3,19 @@ package com.projectbarbel.histo.persistence.mongo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.BarbelQueries;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 import org.slf4j.LoggerFactory;
 
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
@@ -19,9 +24,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 
-public class BarbelHistoCore_MultiUpdateTest {
+@TestMethodOrder(OrderAnnotation.class)
+public class BarbelHistoCore_MultiUpdateAndQueryTest {
 
     // @formatter:off
+    @Order(1)
     @Test
     void embeddedOverlap_Local() throws Exception {
         FlapDoodleEmbeddedMongo.instance();
@@ -150,6 +157,8 @@ public class BarbelHistoCore_MultiUpdateTest {
         assertEquals(20, core.retrieve(BarbelQueries.allInactive("someSome")).size());
 
     }
+    
+    @Order(2)
     @Test
     void embeddedOverlap_Max() throws Exception {
         BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().build();
@@ -176,6 +185,103 @@ public class BarbelHistoCore_MultiUpdateTest {
         assertEquals(3, core.retrieve(BarbelQueries.allActive("someSome")).size());
         assertEquals(2, core.retrieve(BarbelQueries.allInactive("someSome")).size());
         
+    }
+
+    @Order(3)
+    @Test
+    void allOtherQueries_AllId() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(24, core.retrieve(BarbelQueries.all("someSome")).size());
+    }
+    @Order(4)
+    @Test
+    void allOtherQueries_allActive() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(4, core.retrieve(BarbelQueries.allActive("someSome")).size());
+    }
+    @Order(5)
+    @Test
+    void allOtherQueries_allInactive() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(20, core.retrieve(BarbelQueries.allInactive("someSome")).size());
+    }
+    @Order(6)
+    @Test
+    void allOtherQueries_effectiveAfter() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(2, core.retrieve(BarbelQueries.effectiveAfter("someSome", LocalDate.now().plusDays(2))).size());
+    }
+    @Order(7)
+    @Test
+    void allOtherQueries_effectiveBetween() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(4, core.retrieve(BarbelQueries.effectiveBetween("someSome", EffectivePeriod.of(LocalDate.now(), LocalDate.MAX))).size());
+    }
+    @Order(8)
+    @Test
+    void allOtherQueries_effectiveNow() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(1, core.retrieve(BarbelQueries.effectiveNow("someSome")).size());
+    }
+    @Order(9)
+    @Test
+    void allOtherQueries_journalAt() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(4, core.retrieve(BarbelQueries.journalAt("someSome", LocalDateTime.now())).size());
+    }
+    @Order(10)
+    @Test
+    void allOtherQueries_All() throws Exception {
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();
+        SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                .withSynchronousEventListener(loadingListener).build();
+        assertEquals(24, core.retrieve(BarbelQueries.all()).size());
     }
     // @formatter:on
 

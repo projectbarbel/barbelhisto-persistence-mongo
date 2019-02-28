@@ -8,6 +8,7 @@ import java.util.stream.StreamSupport;
 
 import org.bson.Document;
 import org.projectbarbel.histo.BarbelHisto;
+import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.BarbelMode;
 import org.projectbarbel.histo.BarbelQueries;
 import org.projectbarbel.histo.DocumentJournal;
@@ -77,11 +78,18 @@ public class SimpleMongoLazyLoadingListener {
             Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
             BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
             final Object id = BarbelQueries.returnIDForQuery(query);
-            List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
-                    .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
-                    .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-            if (!histo.contains(id))
-                histo.load(docs);
+            if (id != null) {
+                List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
+                        .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
+                        .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+                if (!histo.contains(id))
+                    histo.load(docs);
+            } else {
+                List<Bitemporal> docs = (List<Bitemporal>) StreamSupport.stream(shadow.find().spliterator(), true)
+                        .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+                if (((BarbelHistoCore<?>)histo).size()==0)
+                    histo.load(docs);
+            }
         } catch (Exception e) {
             event.failed(e);
         }
