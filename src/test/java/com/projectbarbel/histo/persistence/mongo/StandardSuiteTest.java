@@ -37,7 +37,7 @@ public class StandardSuiteTest {
                     DiscoverySelectors.selectPackage("org.projectbarbel.histo")
                 )
                 .filters(
-                        ClassNameFilter.includeClassNamePatterns(".*Test")
+                        ClassNameFilter.includeClassNamePatterns(".*SuiteTest")
                 )
                 .build();
 

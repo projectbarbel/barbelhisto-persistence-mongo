@@ -26,6 +26,6 @@ deploy:
       - target/barbelhisto-persistence-mongo-$project_version-javadoc.jar
   skip_cleanup: true
   on:
-    repo: projectbarbel/barbelhisto-core
+    repo: projectbarbel/barbelhisto-persistence-mongo
     tags: true
   name: $project_version
