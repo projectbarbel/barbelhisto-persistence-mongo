@@ -24,16 +24,13 @@ import com.mongodb.client.result.DeleteResult;
 
 /**
  * Mongo shadow update listener implementation to synchronize
- * {@link BarbelHisto} backbone updates to {@link MongoCollection}. No
- * persistent locking is applied, so applications need to share a single
- * instance of {@link BarbelHisto} if the use this listener.<br>
- * <br>
+ * {@link BarbelHisto} backbone updates to {@link MongoCollection}. 
  * 
  * @author Niklas Schlimm
  *
  */
 public class SimpleMongoUpdateListener {
-
+    
     private static final String VERSION_ID = ".versionId";
     private MongoCollection<Document> shadow;
     private final MongoClient client;
@@ -59,7 +56,7 @@ public class SimpleMongoUpdateListener {
         }
         this.versionIdFieldName = mode.getStampFieldName(mode.getPersistenceObjectType(managedType),
                 BitemporalStamp.class) + VERSION_ID;
-        
+
     }
 
     public static SimpleMongoUpdateListener create(MongoClient client, String dbName, String collectionName,
@@ -90,19 +87,20 @@ public class SimpleMongoUpdateListener {
             List<Bitemporal> objectsRemoved = inactivations.stream()
                     .map(r -> mode.managedBitemporalToCustomPersistenceObject(r.getObjectRemoved()))
                     .collect(Collectors.toList());
-            List<DeleteResult> results = (List<DeleteResult>) objectsRemoved.stream()
+            List<DeleteResult> results = objectsRemoved.stream()
                     .map(objectToRemove -> (DeleteResult) delete(objectToRemove)).collect(Collectors.toList());
-            Validate.validState(results.stream().filter(r -> r.getDeletedCount() != 1).count() == 0,"delete operation failed - delete count must always be = 1");
+            Validate.validState(results.stream().filter(r -> r.getDeletedCount() != 1).count() == 0,
+                    "delete operation failed - delete count must always be = 1");
             // // @formatter:off
             List<Document> documentsToInsert = managedBitemporalsInserted.stream()
-                    .map(v -> mode.managedBitemporalToCustomPersistenceObject(v)) // to persistence object
-                    .map(v -> gson.toJson(v)) // to json
-                    .map(v -> Document.parse(v)) // to mongo Document
+                    .map(mode::managedBitemporalToCustomPersistenceObject) // to persistence object
+                    .map(gson::toJson) // to json
+                    .map(Document::parse) // to mongo Document
                     .collect(Collectors.toList()); // to list
             List<Document> documentsAddedOnReplacements = inactivations.stream()
                     .map(r -> mode.managedBitemporalToCustomPersistenceObject(r.getObjectAdded())) // to persistence objects
-                    .map(v -> gson.toJson(v)) // to json
-                    .map(v -> Document.parse(v)) // to mongo Document
+                    .map(gson::toJson) // to json
+                    .map(Document::parse) // to mongo Document
                     .collect(Collectors.toList()); // to list
             documentsToInsert.addAll(documentsAddedOnReplacements);
             // @formatter:on

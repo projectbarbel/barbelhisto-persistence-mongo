@@ -296,6 +296,7 @@ public class BarbelHistoCore_MultiUpdateAndQueryTest {
                 .withSynchronousEventListener(loadingListener).build();
         DefaultPojo pojo = new DefaultPojo("someOther", "some data");
         core.save(pojo, LocalDate.now(), LocalDate.MAX);
+        assertEquals(1, ((BarbelHistoCore<DefaultPojo>)core).size());
     }
     @Order(12)
     @Test

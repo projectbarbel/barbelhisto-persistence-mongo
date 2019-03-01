@@ -70,8 +70,9 @@ public class StandardSuiteTest {
                             "testCol", managedType, BarbelHistoContext.getDefaultGson());
                     SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
                             "testCol", managedType, BarbelHistoContext.getDefaultGson());
+                    MongoPessimisticLockingListener locking = MongoPessimisticLockingListener.create(client.getMongoClient(), "lockDb", "docLocks");
                     return BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
-                            .withSynchronousEventListener(loadingListener);
+                            .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking);
                 }
             };
             launcher.runall();

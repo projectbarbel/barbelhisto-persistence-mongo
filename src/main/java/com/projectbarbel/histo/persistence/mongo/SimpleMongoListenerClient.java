@@ -28,7 +28,7 @@ public class SimpleMongoListenerClient {
 
     private final MongoClient mongoClient;
     
-    public final static SimpleMongoListenerClient INSTANCE = createFromProperties();
+    public static final SimpleMongoListenerClient INSTANCE = createFromProperties();
 
     private SimpleMongoListenerClient(MongoClient client) {
         this.mongoClient = client;

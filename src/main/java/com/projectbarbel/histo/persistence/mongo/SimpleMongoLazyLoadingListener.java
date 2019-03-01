@@ -29,9 +29,6 @@ import com.mongodb.client.MongoCollection;
  * Mongo shadow lazy loading listener implementation to pre-fetch saved data
  * from previous sessions back to {@link BarbelHisto}. <br>
  * 
- * The simple listener implementations do not lock a document journal in the
- * database. Therefore clients want to create a {@link BarbelHisto} singleton
- * instance to ensure locking is performed properly on a document journal level.
  * The simple listener implementations provide support for all
  * {@link BarbelQueries} and all custom queries as long they use the
  * {@link BarbelQueries#DOCUMENT_ID} as a filter criterion.
@@ -86,16 +83,17 @@ public class SimpleMongoLazyLoadingListener {
             Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
             BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
             final List<Object> ids = BarbelQueries.returnIDsForQuery(query, new ArrayList<>());
-            if (ids.size()>0) {
+            if (!ids.isEmpty()) {
                 for (Object id : ids) {
-                    List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
+                    List<Bitemporal> docs = StreamSupport
                             .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
                             .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-                    if (!histo.contains(id))
-                        histo.load(docs);
+                    if (histo.contains(id))
+                        histo.unload(id);
+                    histo.load(docs);
                 }
             } else {
-                List<Bitemporal> docs = (List<Bitemporal>) StreamSupport.stream(shadow.find().spliterator(), true)
+                List<Bitemporal> docs = StreamSupport.stream(shadow.find().spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                 if (((BarbelHistoCore<?>) histo).size() == 0)
                     histo.load(docs);
@@ -120,9 +118,11 @@ public class SimpleMongoLazyLoadingListener {
         try {
             DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);
             BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
-            List<Bitemporal> docs = (List<Bitemporal>) StreamSupport
+            List<Bitemporal> docs = StreamSupport
                     .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
                     .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+            if (histo.contains(journal.getId()))
+                histo.unload(journal.getId());
             histo.load(docs);
         } catch (Exception e) {
             event.failed(e);

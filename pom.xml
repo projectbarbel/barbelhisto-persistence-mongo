@@ -193,7 +193,7 @@
 
 	<repositories>
 		<repository>
-		    <!-- Standard for test suite execution -->
+			<!-- Standard for test suite execution -->
 			<id>Sonatype</id>
 			<name>Central Repository</name>
 			<releases>
