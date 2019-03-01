@@ -42,7 +42,7 @@ public class IntegratingMongo_Tutorial_DZone {
         // save one
         Client client = new Client("1234", "Mr.", "Schlimm", "Niklas", "some street 11", "somemail@projectbarbel.org",
                 LocalDate.of(1973, 6, 20));
-        mongoBackedHisto.save(client, LocalDate.now(), LocalDate.MAX);
+        assertNotNull(mongoBackedHisto.save(client, LocalDate.now(), LocalDate.MAX));
     }
 
     @Order(2)
@@ -62,7 +62,7 @@ public class IntegratingMongo_Tutorial_DZone {
         BarbelHisto<Client> mongoBackedHisto = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(lockingListener).build();
         Client client = mongoBackedHisto.retrieveOne(BarbelQueries.effectiveNow("1234"));
-        assertEquals(client.getClientId(), "1234");
+        assertEquals("1234", client.getClientId());
         List<Client> clients = mongoBackedHisto.retrieve(QueryFactory.and(BarbelQueries.effectiveNow("1234"),BarbelQueries.effectiveNow("1234")));
         assertEquals(1, clients.size());
         Bitemporal clientBitemporal = (Bitemporal)client;

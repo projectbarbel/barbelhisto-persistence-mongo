@@ -26,6 +26,7 @@ import com.mongodb.client.model.IndexOptions;
  */
 public class MongoPessimisticLockingListener {
 
+    private static final String DOCUMENT_ID = "documentId";
     private MongoCollection<Document> lockCollection;
     private final MongoClient client;
     private final String dbName;
@@ -45,7 +46,7 @@ public class MongoPessimisticLockingListener {
     public void handleInitialization(BarbelInitializedEvent event) {
         try {
             lockCollection = client.getDatabase(dbName).getCollection(collectionName);
-            lockCollection.createIndex(new BasicDBObject("documentId", 1),
+            lockCollection.createIndex(new BasicDBObject(DOCUMENT_ID, 1),
                     new IndexOptions().expireAfter(3600L, TimeUnit.SECONDS).unique(true));
         } catch (Exception e) {
             event.failed(e);
@@ -56,7 +57,7 @@ public class MongoPessimisticLockingListener {
     public void handleAcuireLock(AcquireLockEvent event) {
         try {
             DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);
-            lockCollection.insertOne(new Document("documentId", journal.getId()));
+            lockCollection.insertOne(new Document(DOCUMENT_ID, journal.getId()));
         } catch (Exception e) {
             event.failed(e);
         }
@@ -66,7 +67,7 @@ public class MongoPessimisticLockingListener {
     public void handleLockRelease(ReleaseLockEvent event) {
         try {
             DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);
-            lockCollection.deleteOne(Filters.eq("documentId", journal.getId()));
+            lockCollection.deleteOne(Filters.eq(DOCUMENT_ID, journal.getId()));
         } catch (Exception e) {
             event.failed(e);
         }
