@@ -33,6 +33,12 @@ import com.mongodb.client.MongoCollection;
  * {@link BarbelQueries} and all custom queries as long they use the
  * {@link BarbelQueries#DOCUMENT_ID} as a filter criterion.
  * 
+ * If you run an instance of {@link BarbelHisto} as global singleton in your
+ * application set-up, set the <code>singletonContext</code> flag to true. This
+ * will increase performance as data is the listener refuses to refresh data on
+ * each retrieve operation. This is safe, if only ever one {@link BarbelHisto}
+ * instance is using the {@link MongoCollection}.
+ * 
  * @author Niklas Schlimm
  *
  */
@@ -45,16 +51,18 @@ public class SimpleMongoLazyLoadingListener {
     private final Class<?> managedType;
     private final Class<?> persistedType;
     private final BarbelMode mode;
-    private String documentIdFieldName;
-    private Gson gson;
+    private final String documentIdFieldName;
+    private final Gson gson;
+    private final boolean singletonContext;
 
     private SimpleMongoLazyLoadingListener(MongoClient client, String dbName, String collectionName,
-            Class<?> managedType, Gson gson) {
+            Class<?> managedType, Gson gson, boolean singletonContext) {
         this.client = client;
         this.dbName = dbName;
         this.collectionName = collectionName;
         this.managedType = managedType;
         this.gson = gson;
+        this.singletonContext = singletonContext;
         if (Bitemporal.class.isAssignableFrom(managedType))
             mode = BarbelMode.BITEMPORAL;
         else
@@ -64,8 +72,13 @@ public class SimpleMongoLazyLoadingListener {
     }
 
     public static SimpleMongoLazyLoadingListener create(MongoClient client, String dbName, String collectionName,
+            Class<?> managedType, Gson gson, boolean singletonContext) {
+        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, singletonContext);
+    }
+
+    public static SimpleMongoLazyLoadingListener create(MongoClient client, String dbName, String collectionName,
             Class<?> managedType, Gson gson) {
-        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson);
+        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, false);
     }
 
     @Subscribe
@@ -85,12 +98,14 @@ public class SimpleMongoLazyLoadingListener {
             final List<Object> ids = BarbelQueries.returnIDsForQuery(query, new ArrayList<>());
             if (!ids.isEmpty()) {
                 for (Object id : ids) {
-                    List<Bitemporal> docs = StreamSupport
-                            .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
-                            .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-                    if (histo.contains(id))
-                        histo.unload(id);
-                    histo.load(docs);
+                    if (!histo.contains(id) || (histo.contains(id) && !singletonContext)) {
+                        List<Bitemporal> docs = StreamSupport
+                                .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
+                                .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+                        if (histo.contains(id))
+                            histo.unload(id);
+                        histo.load(docs);
+                    }
                 }
             } else {
                 List<Bitemporal> docs = StreamSupport.stream(shadow.find().spliterator(), true)
@@ -118,12 +133,14 @@ public class SimpleMongoLazyLoadingListener {
         try {
             DocumentJournal journal = (DocumentJournal) event.getEventContext().get(DocumentJournal.class);
             BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
-            List<Bitemporal> docs = StreamSupport
-                    .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
-                    .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-            if (histo.contains(journal.getId()))
-                histo.unload(journal.getId());
-            histo.load(docs);
+            if (!histo.contains(journal.getId()) || (histo.contains(journal.getId()) && !singletonContext)) {
+                List<Bitemporal> docs = StreamSupport
+                        .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
+                        .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
+                if (histo.contains(journal.getId()))
+                    histo.unload(journal.getId());
+                histo.load(docs);
+            }
         } catch (Exception e) {
             event.failed(e);
         }

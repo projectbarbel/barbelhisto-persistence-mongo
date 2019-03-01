@@ -81,4 +81,33 @@ public class StandardSuiteTest {
             summary.printFailuresTo(new PrintWriter(System.out));
             assertEquals(0, summary.getFailures().size());
     }
+    
+    @Test
+    public void standardTestSuite_singletonContext() {
+        StandardSuiteTest launcher = new StandardSuiteTest();
+        BarbelHistoTestContext.INSTANCE = new Function<Class<?>,BarbelHistoBuilder> () {
+            
+            @Override
+            public BarbelHistoBuilder apply(Class<?> managedType) {
+                FlapDoodleEmbeddedMongo.instance();
+                LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+                Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+                rootLogger.setLevel(Level.OFF);
+                SimpleMongoListenerClient client = SimpleMongoListenerClient.INSTANCE;
+                client.getMongoClient().getDatabase("testDb").drop();
+                SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(client.getMongoClient(), "testDb",
+                        "testCol", managedType, BarbelHistoContext.getDefaultGson());
+                SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(client.getMongoClient(), "testDb",
+                        "testCol", managedType, BarbelHistoContext.getDefaultGson(), true);
+                MongoPessimisticLockingListener locking = MongoPessimisticLockingListener.create(client.getMongoClient(), "lockDb", "docLocks");
+                return BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
+                        .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking);
+            }
+        };
+        launcher.runall();
+        TestExecutionSummary summary = launcher.listener.getSummary();
+        summary.printTo(new PrintWriter(System.out));
+        summary.printFailuresTo(new PrintWriter(System.out));
+        assertEquals(0, summary.getFailures().size());
+    }
 }
