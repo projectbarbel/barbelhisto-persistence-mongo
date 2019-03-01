@@ -20,7 +20,7 @@ deploy:
   api_key: $GITHUB_TOKEN
   skip_cleanup: true
   true:
-    repo: projectbarbel/barbelhisto-core
+    repo: projectbarbel/barbelhisto-persistence-mongo
     tags: true
   overwrite: true
   file:
