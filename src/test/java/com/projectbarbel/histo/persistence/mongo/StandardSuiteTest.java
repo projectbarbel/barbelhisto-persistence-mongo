@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.suite.BTSuiteExecutor;
-import org.projectbarbel.histo.suite.context.BTContext_PersistenceListener;
+import org.projectbarbel.histo.suite.context.BTTestContextPersistenceListener;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.client.MongoDatabase;
@@ -21,7 +21,7 @@ public class StandardSuiteTest {
     @Test
     public void standardTestSuite_singletonContext() {
         BTSuiteExecutor executor = new BTSuiteExecutor();
-        executor.test(new BTContext_PersistenceListener() {
+        executor.test(new BTTestContextPersistenceListener() {
 
             private SimpleMongoListenerClient client;
 
