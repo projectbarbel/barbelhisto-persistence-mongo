@@ -94,7 +94,7 @@ public class SimpleMongoLazyLoadingListener {
     public void handleRetrieveData(RetrieveDataEvent event) {
         try {
             Query<?> query = (Query<?>) event.getEventContext().get(RetrieveDataEvent.QUERY);
-            BarbelHisto<?> histo = (BarbelHisto<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
+            BarbelHistoCore<?> histo = (BarbelHistoCore<?>) event.getEventContext().get(RetrieveDataEvent.BARBEL);
             final List<Object> ids = BarbelQueries.returnIDsForQuery(query, new ArrayList<>());
             if (!ids.isEmpty()) {
                 for (Object id : ids) {
@@ -103,15 +103,16 @@ public class SimpleMongoLazyLoadingListener {
                                 .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
                                 .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                         if (histo.contains(id))
-                            histo.unload(id);
-                        histo.load(docs);
+                            ((BarbelHistoCore<?>)histo).unloadInternal(id);
+                        ((BarbelHistoCore<?>)histo).loadQuiet(docs);
                     }
                 }
             } else {
+                // literally the complete refresh with backbone data
                 List<Bitemporal> docs = StreamSupport.stream(shadow.find().spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
-                if (((BarbelHistoCore<?>) histo).size() == 0)
-                    histo.load(docs);
+                histo.getContext().getBackbone().clear();
+                ((BarbelHistoCore<?>)histo).loadQuiet(docs);
             }
         } catch (Exception e) {
             event.failed(e);
@@ -138,8 +139,8 @@ public class SimpleMongoLazyLoadingListener {
                         .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                 if (histo.contains(journal.getId()))
-                    histo.unload(journal.getId());
-                histo.load(docs);
+                    ((BarbelHistoCore<?>)histo).unloadInternal(journal.getId());
+                ((BarbelHistoCore<?>)histo).loadQuiet(docs);
             }
         } catch (Exception e) {
             event.failed(e);
