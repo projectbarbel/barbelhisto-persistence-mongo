@@ -87,6 +87,8 @@ public class SimpleMongoUpdateListener {
             @SuppressWarnings("unchecked")
             Collection<Bitemporal> managedBitemporalsToLoad = (Collection<Bitemporal>) event.getEventContext()
                     .get(OnLoadOperationEvent.DATA);
+            if (managedBitemporalsToLoad.size()==0)
+                return;
             for (Bitemporal bitemporal : managedBitemporalsToLoad) {
                 if (shadow.find(eq(documentIdFieldName, bitemporal.getBitemporalStamp().getDocumentId())).iterator()
                         .hasNext())
@@ -116,7 +118,7 @@ public class SimpleMongoUpdateListener {
                         .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                 if (histo.contains(id))
-                    ((BarbelHistoCore<?>) histo).unloadInternal(id);
+                    ((BarbelHistoCore<?>) histo).unloadQuiet(id);
                 ((BarbelHistoCore<?>) histo).loadQuiet(docs);
                 shadow.deleteMany(eq(documentIdFieldName, id));
             }

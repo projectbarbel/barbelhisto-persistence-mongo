@@ -103,7 +103,7 @@ public class SimpleMongoLazyLoadingListener {
                                 .stream(shadow.find(eq(documentIdFieldName, id)).spliterator(), true)
                                 .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                         if (histo.contains(id))
-                            ((BarbelHistoCore<?>)histo).unloadInternal(id);
+                            ((BarbelHistoCore<?>)histo).unloadQuiet(id);
                         ((BarbelHistoCore<?>)histo).loadQuiet(docs);
                     }
                 }
@@ -139,7 +139,7 @@ public class SimpleMongoLazyLoadingListener {
                         .stream(shadow.find(eq(documentIdFieldName, journal.getId())).spliterator(), true)
                         .map(d -> (Bitemporal) toPersistedType((Document) d)).collect(Collectors.toList());
                 if (histo.contains(journal.getId()))
-                    ((BarbelHistoCore<?>)histo).unloadInternal(journal.getId());
+                    ((BarbelHistoCore<?>)histo).unloadQuiet(journal.getId());
                 ((BarbelHistoCore<?>)histo).loadQuiet(docs);
             }
         } catch (Exception e) {
