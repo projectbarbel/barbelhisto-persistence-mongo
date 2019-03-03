@@ -42,7 +42,7 @@ import com.mongodb.client.MongoCollection;
  * @author Niklas Schlimm
  *
  */
-public class SimpleMongoLazyLoadingListener {
+public final class SimpleMongoLazyLoadingListener {
 
     private MongoCollection<Document> shadow;
     private final MongoClient client;

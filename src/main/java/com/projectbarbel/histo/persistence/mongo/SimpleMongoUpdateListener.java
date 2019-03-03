@@ -35,7 +35,7 @@ import com.mongodb.client.result.DeleteResult;
  * @author Niklas Schlimm
  *
  */
-public class SimpleMongoUpdateListener {
+public final class SimpleMongoUpdateListener {
 
     private static final String VERSION_ID = ".versionId";
     private MongoCollection<Document> shadow;
