@@ -9,6 +9,7 @@ import org.projectbarbel.histo.suite.BTSuiteExecutor;
 import org.projectbarbel.histo.suite.context.BTContext_PersistenceListener;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.client.MongoDatabase;
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 import ch.qos.logback.classic.Level;
@@ -36,13 +37,13 @@ public class StandardSuiteTest {
                         rootLogger.setLevel(Level.OFF);
                         client = SimpleMongoListenerClient.INSTANCE;
                         SimpleMongoUpdateListener updateListener = SimpleMongoUpdateListener.create(
-                                client.getMongoClient(), "testDb", "testCol", managedType,
+                                client.getMongoClient(), "testSuiteDb", "testCol", managedType,
                                 BarbelHistoContext.getDefaultGson());
                         SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(
-                                client.getMongoClient(), "testDb", "testCol", managedType,
+                                client.getMongoClient(), "testSuiteDb", "testCol", managedType,
                                 BarbelHistoContext.getDefaultGson(), true);
                         MongoPessimisticLockingListener locking = MongoPessimisticLockingListener
-                                .create(client.getMongoClient(), "lockDb", "docLocks");
+                                .create(client.getMongoClient(), "tsLockDb", "docLocks");
                         return BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking);
                     }
@@ -51,8 +52,14 @@ public class StandardSuiteTest {
 
             @Override
             public void clearResources() {
-                if (client != null)
-                    client.getMongoClient().getDatabase("testDb").drop();
+                if (client != null) {
+                    MongoDatabase database = client.getMongoClient().getDatabase("testSuiteDb");
+                    if (database != null)
+                        database.drop();
+                    database = client.getMongoClient().getDatabase("tsLockDb");
+                    if (database != null)
+                        database.drop();                    
+                }
             }
         });
     }
