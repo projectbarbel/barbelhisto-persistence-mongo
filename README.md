@@ -5,4 +5,4 @@
 
 Mongo DB integration listeners for [BarbelHisto](https://github.com/projectbarbel/barbelhisto-core).
 
-See the [project site](http://www.projectbarbel.org) for documentation.
+See the [project site](http://www.projectbarbel.org/docs/mongo) for documentation.
