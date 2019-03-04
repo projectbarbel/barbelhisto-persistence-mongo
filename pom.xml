@@ -215,7 +215,7 @@
 		<dependency>
 			<groupId>org.projectbarbel</groupId>
 			<artifactId>barbelhisto</artifactId>
-			<version>1.6.1-SNAPSHOT</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>
@@ -290,7 +290,7 @@
 			<groupId>org.projectbarbel</groupId>
 			<artifactId>barbelhisto</artifactId>
 			<type>test-jar</type>
-			<version>1.6.1-SNAPSHOT</version>
+			<version>1.6.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -5,14 +5,14 @@ import static com.mongodb.client.model.Filters.eq;
 import java.util.List;
 
 import org.bson.Document;
-import org.projectbarbel.histo.extension.AbstractMongoUpdateListener;
+import org.projectbarbel.histo.extension.AbstractUpdateListener;
 
 import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 
-public class SimpleMongoUpdateListener extends AbstractMongoUpdateListener<MongoCollection<Document>, Document>{
+public class SimpleMongoUpdateListener extends AbstractUpdateListener<MongoCollection<Document>, Document>{
     private final MongoClient client;
     private final String dbName;
     private final String collectionName;
@@ -27,7 +27,7 @@ public class SimpleMongoUpdateListener extends AbstractMongoUpdateListener<Mongo
 
 
     @Override
-    public MongoCollection<Document> createResource() {
+    public MongoCollection<Document> getExternalDataResource() {
         return client.getDatabase(dbName).getCollection(collectionName);
     }
 
@@ -58,12 +58,14 @@ public class SimpleMongoUpdateListener extends AbstractMongoUpdateListener<Mongo
         return shadow.find(eq(documentIdFieldName, id));
     }
     @Override
-    public Document fromJsonToStoredDocument(String json) {
+    public Document fromPersistenceObjectJsonToStoredDocument(String json) {
+        // the persistence object json shall be the document json
         return Document.parse(json);
     }
 
     @Override
-    public String fromStroredDocumentToJson(Document document) {
+    public String fromStroredDocumentToPersistenceObjectJson(Document document) {
+        // the document json equals the persistence object json
         return document.toJson();
     }
 
