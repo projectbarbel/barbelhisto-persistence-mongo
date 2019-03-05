@@ -16,8 +16,8 @@ public class SimpleMongoLazyLoadingListener extends AbstractLazyLoadingListener<
     private final String collectionName;
     
     public SimpleMongoLazyLoadingListener(MongoClient client, String dbName, String collectionName, Class<?> managedType, Gson gson,
-            boolean singletonContext) {
-        super(managedType, gson, singletonContext);
+            boolean singletonContext, boolean fullfetchAllowed) {
+        super(managedType, gson, singletonContext, fullfetchAllowed);
         this.client = client;
         this.dbName = dbName;
         this.collectionName = collectionName;
@@ -36,13 +36,13 @@ public class SimpleMongoLazyLoadingListener extends AbstractLazyLoadingListener<
     }
 
     public static SimpleMongoLazyLoadingListener create(MongoClient client, String dbName, String collectionName,
-            Class<?> managedType, Gson gson, boolean singletonContext) {
-        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, singletonContext);
+            Class<?> managedType, Gson gson, boolean singletonContext, boolean fullfetchAllowed) {
+        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, singletonContext, fullfetchAllowed);
     }
 
     public static SimpleMongoLazyLoadingListener create(MongoClient client, String dbName, String collectionName,
             Class<?> managedType, Gson gson) {
-        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, false);
+        return new SimpleMongoLazyLoadingListener(client, dbName, collectionName, managedType, gson, false, false);
     }
 
     @Override

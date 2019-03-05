@@ -2,6 +2,7 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.BarbelQueries;
+import org.projectbarbel.histo.event.HistoEventFailedException;
 import org.projectbarbel.histo.model.DefaultPojo;
 
 import com.google.gson.Gson;
@@ -28,7 +30,7 @@ public class SimpleMongoLazyLoadingListenerTest {
 
     @BeforeAll
     public static void setUp() {
-        mongo = FlapDoodleEmbeddedMongo.instance();
+        mongo = FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
     }
 
@@ -78,4 +80,16 @@ public class SimpleMongoLazyLoadingListenerTest {
 
     }
 
+    @Order(4)
+    @Test
+    public void testHandleRetrieveAll_throwsException() throws Exception {
+        
+        SimpleMongoListenerClient client = SimpleMongoListenerClient.create("mongodb://localhost:12345");
+        SimpleMongoLazyLoadingListener lazyloader = SimpleMongoLazyLoadingListener.create(client.getMongoClient(),
+                "testDb", "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
+        BarbelHisto<DefaultPojo> lazyHisto = BarbelHistoBuilder.barbel().withSynchronousEventListener(lazyloader)
+                .build();
+        assertThrows(HistoEventFailedException.class, ()->lazyHisto.retrieve(BarbelQueries.all()));        
+    }
+    
 }

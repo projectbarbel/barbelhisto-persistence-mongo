@@ -21,7 +21,7 @@ public class SimpleMongoUpdateListenerTest {
 
     @BeforeAll
     public static void setUp() {
-        mongo = FlapDoodleEmbeddedMongo.instance();
+        mongo = FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
     }
     

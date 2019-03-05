@@ -29,7 +29,7 @@ public class FlapDoodleEmbeddedMongo {
      * 
      * @return the mongo instance
      */
-    public static FlapDoodleEmbeddedMongo instance() {
+    public static FlapDoodleEmbeddedMongo create() {
         try {
             if (MONGOSERVER == null) {
                 _mongodExe = starter.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
@@ -45,7 +45,13 @@ public class FlapDoodleEmbeddedMongo {
         }
         return MONGOSERVER;
     }
-
+    
+    public static void destroy() {
+        _mongod.stop();
+        _mongodExe.stop();
+        MONGOSERVER = null;
+    }
+    
     public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection)
             throws UnknownHostException, IOException {
         int defaultConfigPort = 12345;

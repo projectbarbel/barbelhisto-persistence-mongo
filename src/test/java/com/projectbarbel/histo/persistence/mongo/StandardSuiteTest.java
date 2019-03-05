@@ -31,7 +31,7 @@ public class StandardSuiteTest {
 
                     @Override
                     public BarbelHistoBuilder apply(Class<?> managedType) {
-                        FlapDoodleEmbeddedMongo.instance();
+                        FlapDoodleEmbeddedMongo.create();
                         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
                         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
                         rootLogger.setLevel(Level.OFF);
@@ -41,7 +41,7 @@ public class StandardSuiteTest {
                                 BarbelHistoContext.getDefaultGson());
                         SimpleMongoLazyLoadingListener loadingListener = SimpleMongoLazyLoadingListener.create(
                                 client.getMongoClient(), "testSuiteDb", "testCol", managedType,
-                                BarbelHistoContext.getDefaultGson(), true);
+                                BarbelHistoContext.getDefaultGson(), true, true);
                         MongoPessimisticLockingListener locking = MongoPessimisticLockingListener
                                 .create(client.getMongoClient(), "tsLockDb", "docLocks");
                         return BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)

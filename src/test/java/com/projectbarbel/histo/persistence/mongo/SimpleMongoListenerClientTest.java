@@ -31,7 +31,7 @@ public class SimpleMongoListenerClientTest {
 
     @Test
     public void testCreateFromProperties_withFlapdoodle() throws Exception {
-        FlapDoodleEmbeddedMongo.instance();
+        FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient instance = SimpleMongoListenerClient.createFromProperties();
         assertNotNull(instance);
     }

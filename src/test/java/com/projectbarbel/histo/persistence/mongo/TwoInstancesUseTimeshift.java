@@ -24,7 +24,7 @@ public class TwoInstancesUseTimeshift {
     @Test
     void testSimultaneousUpdate_Retrieve() throws Exception {
         BarbelHistoContext.getBarbelClock().useFixedClockAt(LocalDateTime.of(2019,2,28,8,0,0));
-        FlapDoodleEmbeddedMongo.instance();
+        FlapDoodleEmbeddedMongo.create();
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
         rootLogger.setLevel(Level.OFF);

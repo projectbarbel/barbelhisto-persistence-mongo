@@ -23,7 +23,7 @@ public class TwoInstancesUpdating {
 
     @Test
     void testSimultaneousUpdate_Retrieve() throws Exception {
-        FlapDoodleEmbeddedMongo.instance();
+        FlapDoodleEmbeddedMongo.create();
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
         rootLogger.setLevel(Level.OFF);
@@ -48,7 +48,7 @@ public class TwoInstancesUpdating {
     
     @Test
     void testSimultaneousUpdate_saveAgain_Retrieve() throws Exception {
-        FlapDoodleEmbeddedMongo.instance();
+        FlapDoodleEmbeddedMongo.create();
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
         rootLogger.setLevel(Level.OFF);
@@ -74,7 +74,7 @@ public class TwoInstancesUpdating {
     
     @Test
     void testSimultaneousUpdate_prettyJournal() throws Exception {
-        FlapDoodleEmbeddedMongo.instance();
+        FlapDoodleEmbeddedMongo.create();
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
         rootLogger.setLevel(Level.OFF);
