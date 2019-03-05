@@ -7,7 +7,7 @@
 
 	<groupId>org.projectbarbel</groupId>
 	<artifactId>barbelhisto-persistence-mongo</artifactId>
-	<version>1.2.4-SNAPSHOT</version>
+	<version>1.2.4</version>
 	<name>BarbelHisto Mongo Persistence</name>
 	<url>http://www.projectbarbel.org</url>
 	<description>BarbelHisto persistence library to connect to mongoDB</description>
