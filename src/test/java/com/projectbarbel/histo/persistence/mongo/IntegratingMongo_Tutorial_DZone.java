@@ -41,7 +41,7 @@ public class IntegratingMongo_Tutorial_DZone {
         BarbelHisto<Client> mongoBackedHisto = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(lockingListener).build();
         // save one
-        Client client = new Client("1234", "Mr.", "Schlimm", "Niklas", "some street 11", "somemail@projectbarbel.org",
+        Client client = new Client("1234", "Mr.", "Smith", "Martin", "some street 11", "somemail@projectbarbel.org",
                 LocalDate.of(1973, 6, 20));
         assertNotNull(mongoBackedHisto.save(client, LocalDate.now(), LocalDate.MAX));
     }
