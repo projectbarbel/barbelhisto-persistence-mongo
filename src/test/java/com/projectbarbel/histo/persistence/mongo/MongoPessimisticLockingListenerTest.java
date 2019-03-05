@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
@@ -20,9 +22,20 @@ import org.projectbarbel.histo.model.DefaultPojo;
 
 import com.googlecode.cqengine.ConcurrentIndexedCollection;
 import com.googlecode.cqengine.IndexedCollection;
+import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 public class MongoPessimisticLockingListenerTest {
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
+    @BeforeAll
+    public static void setUp() {
+        FlapDoodleEmbeddedMongo.create();
+    }
+    
     @Test
     public void testHandleInitialization() throws Exception {
         SimpleMongoListenerClient client = SimpleMongoListenerClient.createFromProperties();

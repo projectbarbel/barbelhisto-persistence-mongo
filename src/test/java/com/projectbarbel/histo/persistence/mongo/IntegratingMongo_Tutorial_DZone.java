@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -19,10 +21,21 @@ import org.projectbarbel.histo.model.Bitemporal;
 
 import com.googlecode.cqengine.query.QueryFactory;
 import com.mongodb.client.MongoClient;
+import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class IntegratingMongo_Tutorial_DZone {
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
+    @BeforeAll
+    public static void setUp() {
+        FlapDoodleEmbeddedMongo.create();
+    }
+    
     @Order(1)
     @Test
     void dzoneTutorial_createInstance() throws Exception {

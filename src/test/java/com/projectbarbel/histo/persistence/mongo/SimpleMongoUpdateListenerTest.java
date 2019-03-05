@@ -17,12 +17,9 @@ import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 public class SimpleMongoUpdateListenerTest {
 
-    @SuppressWarnings("unused")
-    private static FlapDoodleEmbeddedMongo mongo;
-
     @BeforeAll
     public static void setUp() {
-        mongo = FlapDoodleEmbeddedMongo.create();
+        FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
     }
     

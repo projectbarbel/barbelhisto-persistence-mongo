@@ -36,6 +36,8 @@ public class FlapDoodleEmbeddedMongo {
                         .net(new Net("localhost", 12345, Network.localhostIsIPv6())).build());
                 _mongod = _mongodExe.start();
                 MONGOSERVER = new FlapDoodleEmbeddedMongo();
+            } else {
+                _mongod = _mongodExe.start();
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -48,8 +50,6 @@ public class FlapDoodleEmbeddedMongo {
     
     public static void destroy() {
         _mongod.stop();
-        _mongodExe.stop();
-        MONGOSERVER = null;
     }
     
     public void testStartAndStopMongoImportAndMongod(String jsonFile, String database, String collection)

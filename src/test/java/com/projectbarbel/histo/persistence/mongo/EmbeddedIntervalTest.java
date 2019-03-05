@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
@@ -12,12 +14,24 @@ import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.model.DefaultPojo;
 import org.slf4j.LoggerFactory;
 
+import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 
 public class EmbeddedIntervalTest {
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
+    @BeforeAll
+    public static void setUp() {
+        FlapDoodleEmbeddedMongo.create();
+    }
+    
     @Test
     void embeddedOverlap() throws Exception {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
