@@ -2,6 +2,8 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import java.util.function.Function;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
@@ -18,6 +20,16 @@ import ch.qos.logback.classic.LoggerContext;
 
 public class StandardSuiteTest {
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
+    @BeforeAll
+    public static void setUp() {
+        FlapDoodleEmbeddedMongo.create();
+    }
+    
     @Test
     public void standardTestSuite_singletonContext() {
         BTSuiteExecutor executor = new BTSuiteExecutor();
@@ -31,7 +43,6 @@ public class StandardSuiteTest {
 
                     @Override
                     public BarbelHistoBuilder apply(Class<?> managedType) {
-                        FlapDoodleEmbeddedMongo.create();
                         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
                         Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
                         rootLogger.setLevel(Level.OFF);

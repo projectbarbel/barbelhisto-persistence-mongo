@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.BarbelHisto;
@@ -23,6 +24,11 @@ public class SimpleMongoUpdateListenerTest {
     public static void setUp() {
         mongo = FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
+    }
+    
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
     }
     
     @Test

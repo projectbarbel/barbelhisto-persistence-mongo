@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.bson.Document;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.model.DefaultDocument;
 
@@ -14,6 +16,16 @@ import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 public class SimpleMongoListenerClientTest {
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
+    @BeforeAll
+    public static void setUp() {
+        FlapDoodleEmbeddedMongo.create();
+    }
+    
     @Test
     public void testCreateFromProperties() throws Exception {
         SimpleMongoListenerClient instance = SimpleMongoListenerClient.createFromProperties();
@@ -31,7 +43,6 @@ public class SimpleMongoListenerClientTest {
 
     @Test
     public void testCreateFromProperties_withFlapdoodle() throws Exception {
-        FlapDoodleEmbeddedMongo.create();
         SimpleMongoListenerClient instance = SimpleMongoListenerClient.createFromProperties();
         assertNotNull(instance);
     }

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -34,6 +35,11 @@ public class SimpleMongoLazyLoadingListenerTest {
         SimpleMongoListenerClient.createFromProperties().getMongoClient().getDatabase("testDb").drop();
     }
 
+    @AfterAll
+    public static void tearDown() {
+        FlapDoodleEmbeddedMongo.destroy();
+    }
+    
     @Order(1)
     @Test
     public void testCreate() throws Exception {
