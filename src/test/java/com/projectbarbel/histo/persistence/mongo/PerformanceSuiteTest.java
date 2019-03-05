@@ -8,11 +8,13 @@ import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.suite.BTSuiteExecutor;
 import org.projectbarbel.histo.suite.context.BTTestContextCQEngine;
+import org.projectbarbel.histo.suite.extensions.DisableOnTravis;
 
 import com.googlecode.cqengine.ConcurrentIndexedCollection;
 import com.googlecode.cqengine.persistence.disk.DiskPersistence;
 import com.mongodb.client.MongoDatabase;
 
+@DisableOnTravis
 public class PerformanceSuiteTest {
 
     private static SimpleMongoListenerClient client = SimpleMongoListenerClient.INSTANCE;
