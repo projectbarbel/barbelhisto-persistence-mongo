@@ -7,7 +7,7 @@
 
 	<groupId>org.projectbarbel</groupId>
 	<artifactId>barbelhisto-persistence-mongo</artifactId>
-	<version>1.7.1-SNAPSHOT</version>
+	<version>1.7.2</version>
 	<name>BarbelHisto Mongo Persistence</name>
 	<url>http://www.projectbarbel.org</url>
 	<description>BarbelHisto persistence library to connect to mongoDB</description>
@@ -219,9 +219,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver-sync</artifactId>
-			<version>3.10.1</version>
-			<scope>provided</scope>
+			<artifactId>mongodb-driver</artifactId>
+			<version>3.6.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

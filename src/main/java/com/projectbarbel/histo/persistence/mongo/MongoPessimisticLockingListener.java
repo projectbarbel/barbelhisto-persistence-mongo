@@ -8,7 +8,7 @@ import org.projectbarbel.histo.DocumentJournal;
 import org.projectbarbel.histo.extension.AbstractLockingListener;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;

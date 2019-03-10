@@ -59,9 +59,9 @@ public class SimpleMongoLazyLoadingListenerTest {
         BarbelHisto<DefaultPojo> histo = BarbelHistoBuilder.barbel().withSynchronousEventListener(listener).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
         histo.save(pojo, LocalDate.now(), LocalDate.MAX);
-        assertEquals(1, client.getMongoClient().getDatabase("testDb").getCollection("testCol").countDocuments());
+        assertEquals(1, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
         histo.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
-        assertEquals(3, client.getMongoClient().getDatabase("testDb").getCollection("testCol").countDocuments());
+        assertEquals(3, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
 
         SimpleMongoLazyLoadingListener lazyloader = SimpleMongoLazyLoadingListener.create(client.getMongoClient(),
                 "testDb", "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());

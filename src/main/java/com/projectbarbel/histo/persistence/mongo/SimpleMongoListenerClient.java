@@ -8,10 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 /**
  * Class that creates the connection to the underlying journal store in MongoDB.
@@ -34,19 +32,13 @@ public class SimpleMongoListenerClient {
         this.mongoClient = client;
     }
 
-    public static SimpleMongoListenerClient create(MongoClientSettings settings) {
-        MongoClient client = MongoClients.create(settings);
-        return new SimpleMongoListenerClient(client);
-    }
-
     public static SimpleMongoListenerClient createFromProperties() {
         return create(properties(DFLTCONFIGFILE).getProperty(HOSTPROPNAME));
     }
 
     public static SimpleMongoListenerClient create(String hostName) {
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(hostName)).build();
-        MongoClient client = MongoClients.create(settings);
+        MongoClientURI connectionString = new MongoClientURI(hostName);
+        MongoClient client = new MongoClient(connectionString);
         return new SimpleMongoListenerClient(client);
     }
 

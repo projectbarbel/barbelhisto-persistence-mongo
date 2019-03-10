@@ -6,7 +6,7 @@ import org.bson.Document;
 import org.projectbarbel.histo.extension.AbstractLazyLoadingListener;
 
 import com.google.gson.Gson;
-import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 
 public class SimpleMongoLazyLoadingListener extends AbstractLazyLoadingListener<MongoCollection<Document>, Document> {

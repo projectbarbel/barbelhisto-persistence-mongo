@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.projectbarbel.histo.model.DefaultDocument;
 
 import com.google.gson.Gson;
-import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
@@ -38,7 +38,7 @@ public class SimpleMongoListenerClientTest {
         MongoClient client = instance.getMongoClient();
         MongoCollection<Document> collection = client.getDatabase("db").getCollection("col");
         collection.insertOne(Document.parse(new Gson().toJson(new DefaultDocument())));
-        assertEquals(1, collection.countDocuments());
+        assertEquals(1, collection.count());
     }
 
     @Test

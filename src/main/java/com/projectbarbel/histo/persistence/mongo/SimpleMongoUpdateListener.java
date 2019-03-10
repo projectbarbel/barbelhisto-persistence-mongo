@@ -8,8 +8,8 @@ import org.bson.Document;
 import org.projectbarbel.histo.extension.AbstractUpdateListener;
 
 import com.google.gson.Gson;
+import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 
 public class SimpleMongoUpdateListener extends AbstractUpdateListener<MongoCollection<Document>, Document>{

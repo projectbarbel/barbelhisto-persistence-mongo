@@ -20,7 +20,7 @@ import org.projectbarbel.histo.DocumentId;
 import org.projectbarbel.histo.model.Bitemporal;
 
 import com.googlecode.cqengine.query.QueryFactory;
-import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClient;
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
 @TestMethodOrder(OrderAnnotation.class)
