@@ -2,7 +2,7 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +19,7 @@ import org.projectbarbel.histo.event.EventType.ReleaseLockEvent;
 import org.projectbarbel.histo.model.BitemporalStamp;
 import org.projectbarbel.histo.model.DefaultDocument;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 
 import com.googlecode.cqengine.ConcurrentIndexedCollection;
 import com.googlecode.cqengine.IndexedCollection;
@@ -44,7 +45,7 @@ public class MongoPessimisticLockingListenerTest {
                 .create(client.getMongoClient(), "lockDb", "docLocks");
         BarbelHisto<DefaultPojo> histo = BarbelHistoBuilder.barbel().withSynchronousEventListener(listener).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo.save(pojo, LocalDate.now(), LocalDate.MAX);
+        histo.save(pojo, ZonedDateTime.now(), EffectivePeriod.INFINITE);
         assertEquals(1, ((BarbelHistoCore<DefaultPojo>) histo).size());
     }
 

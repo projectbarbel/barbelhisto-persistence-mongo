@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,18 +38,18 @@ public class BarbelTestHelper {
             public String get() {
                 return UUID.randomUUID().toString();
             }
-        }).randomize(LocalDate.class, new Supplier<LocalDate>() {
+        }).randomize(LocalDate.class, new Supplier<ZonedDateTime>() {
 
             @Override
-            public LocalDate get() {
-                return BarbelTestHelper.randomLocalDate(2000, 2020);
+            public ZonedDateTime get() {
+                return BarbelTestHelper.randomLocalDateTime(2000, 2020);
             }
         }).randomize(EffectivePeriod.class, new Supplier<EffectivePeriod>() {
 
             @Override
             public EffectivePeriod get() {
-                LocalDate effectiveFrom = randomLocalDate(2000, 2020);
-                return EffectivePeriod.of(effectiveFrom, randomLocalDate(effectiveFrom.plusDays(1), 2020));
+                ZonedDateTime effectiveFrom = randomLocalDateTime(2000, 2020);
+                return EffectivePeriod.of(effectiveFrom, randomLocalDateTime(effectiveFrom.plusDays(1), 2020));
             }
         }).randomize(RecordPeriod.class, new Supplier<RecordPeriod>() {
 
@@ -54,16 +57,17 @@ public class BarbelTestHelper {
             public RecordPeriod get() {
                 return RecordPeriod.builder().build();
             }
-        }).randomize(new FieldDefinition<BitemporalStamp, Object>("versionId", Object.class,
-                BitemporalStamp.class), new Supplier<Object>() {
+        }).randomize(new FieldDefinition<BitemporalStamp, Object>("versionId", Object.class, BitemporalStamp.class),
+                new Supplier<Object>() {
 
                     @Override
                     public Object get() {
                         return new UUIDGenerator().get();
                     }
                 })
-          .randomize(new FieldDefinition<BitemporalStamp, Object>("documentId", Object.class,
-                        BitemporalStamp.class), new Supplier<Object>() {
+                .randomize(
+                        new FieldDefinition<BitemporalStamp, Object>("documentId", Object.class, BitemporalStamp.class),
+                        new Supplier<Object>() {
 
                             @Override
                             public Object get() {
@@ -73,7 +77,7 @@ public class BarbelTestHelper {
                 .build().nextObject(clazz, excludedFields);
     }
 
-    public static List<BitemporalStamp> generateListOfBitemporals(String docId, List<LocalDate> effectiveDates) {
+    public static List<BitemporalStamp> generateListOfBitemporals(String docId, List<ZonedDateTime> effectiveDates) {
         List<BitemporalStamp> journal = new ArrayList<BitemporalStamp>();
         for (int i = 0; i < effectiveDates.size(); i++) {
             journal.add(createPeriod(docId, effectiveDates, i));
@@ -81,17 +85,18 @@ public class BarbelTestHelper {
         return journal;
     }
 
-    private static BitemporalStamp createPeriod(String docId, List<LocalDate> effectiveDates, int listPointer) {
+    private static BitemporalStamp createPeriod(String docId, List<ZonedDateTime> effectiveDates, int listPointer) {
         return BitemporalStamp.builder().withDocumentId(docId)
                 .withEffectiveTime(effectiveDates.size() - 1 == listPointer
-                        ? EffectivePeriod.of(effectiveDates.get(listPointer), LocalDate.MAX)
+                        ? EffectivePeriod.of(effectiveDates.get(listPointer),
+                                ZonedDateTime.of(LocalDateTime.MAX, ZoneId.systemDefault()))
                         : EffectivePeriod.of(effectiveDates.get(listPointer), effectiveDates.get(listPointer + 1)))
                 .withRecordTime(RecordPeriod.builder().build()).build();
     }
 
     @SuppressWarnings("unchecked")
     public static <T> IndexedCollection<T> generateJournalOfDefaultDocuments(String docId,
-            List<LocalDate> effectiveDates) {
+            List<ZonedDateTime> effectiveDates) {
         IndexedCollection<T> journal = new ConcurrentIndexedCollection<T>();
         for (int i = 0; i < effectiveDates.size(); i++) {
             journal.add((T) DefaultDocument.builder().withBitemporalStamp(createPeriod(docId, effectiveDates, i))
@@ -107,18 +112,20 @@ public class BarbelTestHelper {
         return collection;
     }
 
-    public static LocalDate randomLocalDate(int startYear, int endYear) {
+    public static ZonedDateTime randomLocalDateTime(int startYear, int endYear) {
         long minDay = LocalDate.of(startYear, 1, 1).toEpochDay();
         long maxDay = LocalDate.of(endYear, 12, 31).toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
-        return LocalDate.ofEpochDay(randomDay);
+        return ZonedDateTime.of(LocalDateTime.of(LocalDate.ofEpochDay(randomDay), LocalTime.of(0, 0)),
+                ZoneId.systemDefault());
     }
 
-    public static LocalDate randomLocalDate(LocalDate low, int highYear) {
-        long minDay = low.toEpochDay();
+    public static ZonedDateTime randomLocalDateTime(ZonedDateTime low, int highYear) {
+        long minDay = low.toLocalDate().toEpochDay();
         long maxDay = LocalDate.of(highYear, 12, 31).toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
-        return LocalDate.ofEpochDay(randomDay);
+        return ZonedDateTime.of(LocalDateTime.of(LocalDate.ofEpochDay(randomDay), LocalTime.of(0, 0)),
+                ZoneId.systemDefault());
     }
 
     public static LocalDate randomLocalDate(LocalDate low, LocalDate high) {

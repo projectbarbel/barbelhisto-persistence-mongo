@@ -3,7 +3,7 @@ package com.projectbarbel.histo.persistence.mongo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +12,7 @@ import org.projectbarbel.histo.BarbelHisto;
 import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
 
@@ -36,9 +37,9 @@ public class SimpleMongoUpdateListenerTest {
                 "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
         BarbelHisto<DefaultPojo> histo = BarbelHistoBuilder.barbel().withSynchronousEventListener(listener).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo.save(pojo, LocalDate.now(), LocalDate.MAX);
+        histo.save(pojo, ZonedDateTime.now(), EffectivePeriod.INFINITE);
         assertEquals(1, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
-        histo.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        histo.save(pojo, ZonedDateTime.now().plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(3, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
     }
 

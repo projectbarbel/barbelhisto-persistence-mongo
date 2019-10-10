@@ -2,7 +2,7 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +12,7 @@ import org.projectbarbel.histo.BarbelHistoBuilder;
 import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 import org.slf4j.LoggerFactory;
 
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
@@ -46,13 +47,14 @@ public class EmbeddedIntervalTest {
         BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).build();
         DefaultPojo pojo = new DefaultPojo("someSome", "some data");
-        core.save(pojo, LocalDate.now(), LocalDate.MAX);
+        ZonedDateTime now = ZonedDateTime.now();
+        core.save(pojo, now, EffectivePeriod.INFINITE);
         pojo = new DefaultPojo("someSome", "changed");
-        core.save(pojo, LocalDate.now().plusDays(1), LocalDate.now().plusDays(10));
+        core.save(pojo, now.plusDays(1), now.plusDays(10));
         assertEquals(4,((BarbelHistoCore<DefaultPojo>)core).size());
         pojo = new DefaultPojo("someSome", "changed again");
         System.out.println(core.prettyPrintJournal("someSome"));
-        core.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        core.save(pojo, now.plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(5,((BarbelHistoCore<DefaultPojo>)core).size());
         System.out.println(core.prettyPrintJournal("someSome"));
     }
@@ -61,13 +63,14 @@ public class EmbeddedIntervalTest {
     void embeddedOverlap_notLocal() throws Exception {
         BarbelHisto<DefaultPojo> core = BarbelHistoBuilder.barbel().build();
         DefaultPojo pojo = new DefaultPojo("someSome", "some data");
-        core.save(pojo, LocalDate.now(), LocalDate.now().plusDays(20));
+        ZonedDateTime zdt = ZonedDateTime.now();
+        core.save(pojo, zdt, zdt.plusDays(20));
         pojo = new DefaultPojo("someSome", "changed");
-        core.save(pojo, LocalDate.now().plusDays(1), LocalDate.now().plusDays(10));
+        core.save(pojo, zdt.plusDays(1), zdt.plusDays(10));
         assertEquals(4,((BarbelHistoCore<DefaultPojo>)core).size());
         pojo = new DefaultPojo("someSome", "changed again");
         System.out.println(core.prettyPrintJournal("someSome"));
-        core.save(pojo, LocalDate.now().plusDays(1), LocalDate.now().plusDays(20));
+        core.save(pojo, zdt.plusDays(1), zdt.plusDays(20));
         System.out.println(core.prettyPrintJournal("someSome"));
         assertEquals(5,((BarbelHistoCore<DefaultPojo>)core).size());
     }

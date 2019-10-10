@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -18,6 +19,7 @@ import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelQueries;
 import org.projectbarbel.histo.DocumentId;
 import org.projectbarbel.histo.model.Bitemporal;
+import org.projectbarbel.histo.model.EffectivePeriod;
 
 import com.googlecode.cqengine.query.QueryFactory;
 import com.mongodb.MongoClient;
@@ -56,7 +58,7 @@ public class IntegratingMongo_Tutorial_DZone {
         // save one
         Client client = new Client("1234", "Mr.", "Smith", "Martin", "some street 11", "somemail@projectbarbel.org",
                 LocalDate.of(1973, 6, 20));
-        assertNotNull(mongoBackedHisto.save(client, LocalDate.now(), LocalDate.MAX));
+        assertNotNull(mongoBackedHisto.save(client, ZonedDateTime.now(), EffectivePeriod.INFINITE));
     }
 
     @Order(2)

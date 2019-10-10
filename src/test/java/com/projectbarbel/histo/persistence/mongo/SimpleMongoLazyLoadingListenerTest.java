@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +19,7 @@ import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.BarbelQueries;
 import org.projectbarbel.histo.event.HistoEventFailedException;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 
 import com.google.gson.Gson;
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
@@ -58,9 +59,9 @@ public class SimpleMongoLazyLoadingListenerTest {
                 "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
         BarbelHisto<DefaultPojo> histo = BarbelHistoBuilder.barbel().withSynchronousEventListener(listener).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo.save(pojo, LocalDate.now(), LocalDate.MAX);
+        histo.save(pojo, ZonedDateTime.now(), EffectivePeriod.INFINITE);
         assertEquals(1, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
-        histo.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        histo.save(pojo, ZonedDateTime.now().plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(3, client.getMongoClient().getDatabase("testDb").getCollection("testCol").count());
 
         SimpleMongoLazyLoadingListener lazyloader = SimpleMongoLazyLoadingListener.create(client.getMongoClient(),
@@ -81,7 +82,7 @@ public class SimpleMongoLazyLoadingListenerTest {
                 "testDb", "testCol", DefaultPojo.class, BarbelHistoContext.getDefaultGson());
         BarbelHisto<DefaultPojo> lazyHisto = BarbelHistoBuilder.barbel().withSynchronousEventListener(lazyloader)
                 .build();
-        lazyHisto.save(new DefaultPojo("someId", "changed data"), LocalDate.now().minusDays(2), LocalDate.MAX);
+        lazyHisto.save(new DefaultPojo("someId", "changed data"), ZonedDateTime.now().minusDays(2), EffectivePeriod.INFINITE);
         assertEquals(4, ((BarbelHistoCore<DefaultPojo>) lazyHisto).size());
 
     }

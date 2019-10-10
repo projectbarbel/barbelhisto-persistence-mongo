@@ -2,7 +2,7 @@ package com.projectbarbel.histo.persistence.mongo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +13,7 @@ import org.projectbarbel.histo.BarbelHistoContext;
 import org.projectbarbel.histo.BarbelHistoCore;
 import org.projectbarbel.histo.BarbelQueries;
 import org.projectbarbel.histo.model.DefaultPojo;
+import org.projectbarbel.histo.model.EffectivePeriod;
 import org.slf4j.LoggerFactory;
 
 import com.projectbarbel.histo.persistence.impl.mongo.FlapDoodleEmbeddedMongo;
@@ -50,8 +51,8 @@ public class TwoInstancesUpdating {
         BarbelHisto<DefaultPojo> histo2 = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo1.save(pojo, LocalDate.now(), LocalDate.MAX);
-        histo2.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        histo1.save(pojo, ZonedDateTime.now(), EffectivePeriod.INFINITE);
+        histo2.save(pojo, ZonedDateTime.now().plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(1, ((BarbelHistoCore<DefaultPojo>)histo1).size());
         assertEquals(3, ((BarbelHistoCore<DefaultPojo>)histo2).size());
         assertEquals(3, histo1.retrieve(BarbelQueries.all("someId")).size());
@@ -74,11 +75,12 @@ public class TwoInstancesUpdating {
         BarbelHisto<DefaultPojo> histo2 = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo1.save(pojo, LocalDate.now(), LocalDate.MAX);
+        ZonedDateTime zdt = ZonedDateTime.now();
+        histo1.save(pojo, zdt, EffectivePeriod.INFINITE);
         assertEquals(1, ((BarbelHistoCore<DefaultPojo>)histo1).size());
-        histo2.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        histo2.save(pojo, zdt.plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(3, ((BarbelHistoCore<DefaultPojo>)histo2).size());
-        histo1.save(pojo, LocalDate.now().plusDays(2), LocalDate.MAX);
+        histo1.save(pojo, zdt.plusDays(2), EffectivePeriod.INFINITE);
         assertEquals(5, ((BarbelHistoCore<DefaultPojo>)histo1).size());
     }
     
@@ -99,9 +101,10 @@ public class TwoInstancesUpdating {
         BarbelHisto<DefaultPojo> histo2 = BarbelHistoBuilder.barbel().withSynchronousEventListener(updateListener)
                 .withSynchronousEventListener(loadingListener).withSynchronousEventListener(locking).build();
         DefaultPojo pojo = new DefaultPojo("someId", "some data");
-        histo1.save(pojo, LocalDate.now(), LocalDate.MAX);
+        ZonedDateTime zdt = ZonedDateTime.now();
+        histo1.save(pojo, zdt, EffectivePeriod.INFINITE);
         assertEquals(1, ((BarbelHistoCore<DefaultPojo>)histo1).size());
-        histo2.save(pojo, LocalDate.now().plusDays(1), LocalDate.MAX);
+        histo2.save(pojo, zdt.plusDays(1), EffectivePeriod.INFINITE);
         assertEquals(3, ((BarbelHistoCore<DefaultPojo>)histo2).size());
         histo1.prettyPrintJournal("someId");
         assertEquals(3, ((BarbelHistoCore<DefaultPojo>)histo1).size());
